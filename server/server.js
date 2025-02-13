@@ -3,8 +3,8 @@ const app = express();
 const morgan = require('morgan');
 const { readdirSync } = require('fs');
 const cors = require('cors');
-//const authRoutes = require('./routes/auth');
-//const categoryRoutes = require('./routes/category');
+const authRoutes = require('./routes/auth');
+const categoryRoutes = require('./routes/category');
 
 
 
