@@ -165,14 +165,14 @@ exports.saveAddress = async (req, res) => {
 
 exports.saveOrder = async (req, res) => {
     try {
-        // ตรวจสอบว่า req.user.id มีค่าหรือไม่
+
         if (!req.user || !req.user.id) {
             return res.status(401).json({ ok: false, message: "Unauthorized" });
         }
 
         const userId = Number(req.user.id);
 
-        // ดึงข้อมูลตะกร้าสินค้า
+       
         const userCart = await prisma.cart.findFirst({
             where: { orderedById: userId },
             include: { products: true }
@@ -182,17 +182,17 @@ exports.saveOrder = async (req, res) => {
             return res.status(400).json({ ok: false, message: "Cart is Empty" });
         }
 
-        // ดึงข้อมูลสินค้าทั้งหมดใน cart ทีเดียว
+
         const productIds = userCart.products.map(item => item.productId);
         const products = await prisma.product.findMany({
             where: { id: { in: productIds } },
             select: { id: true, quantity: true, title: true }
         });
 
-        // สร้าง map ของสินค้าเพื่อง่ายต่อการตรวจสอบ
+
         const productMap = new Map(products.map(p => [p.id, p]));
 
-        // ตรวจสอบว่าสินค้าใน stock เพียงพอหรือไม่
+
         for (const item of userCart.products) {
             const product = productMap.get(item.productId);
             if (!product || item.count > product.quantity) {
@@ -218,7 +218,7 @@ exports.saveOrder = async (req, res) => {
             }
         });
 
-        // อัปเดต stock ของสินค้าโดยใช้ batch update
+
         const updateStockOperations = userCart.products.map(item => ({
             where: { id: item.productId },
             data: {
