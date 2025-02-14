@@ -15,7 +15,9 @@ import Product from "../pages/admin/Product.jsx";
 import Manage from "../pages/admin/Manage.jsx";
 import LayoutUser from "../layouts/LayoutUser.jsx";
 import HomeUser from "../pages/user/HomeUser.jsx";
-//import ProtectRouteUser from "./ProtectRouteUser.jsx";
+import ProtectRouteUser from "./ProtectRouteUser.jsx";
+
+
 //import ProtectRouteAdmin from "./ProtectRouteAdmin.jsx";
 const AppRoutes = () => {
     const router = createBrowserRouter([
@@ -44,7 +46,7 @@ const AppRoutes = () => {
         },
         {
             path: '/user',
-            element: <LayoutUser/>,
+            element: <ProtectRouteUser element={<LayoutUser/>}/>,
             children: [
                 { index: true, element:<HomeUser/> },
             ]
