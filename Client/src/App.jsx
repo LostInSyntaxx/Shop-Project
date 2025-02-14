@@ -1,10 +1,12 @@
 import React from 'react'
+import AppRoutes from "./routes/AppRoutes.jsx";
+
 
 const App = () => {
     return (
-        <div>
-            <h1 className="font-sans text-2xl font-bold">สวัสดี DaisyUI!</h1>
-        </div>
+        <>
+            <AppRoutes/>
+        </>
     )
 }
 export default App
