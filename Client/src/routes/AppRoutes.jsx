@@ -16,6 +16,8 @@ import Manage from "../pages/admin/Manage.jsx";
 import LayoutUser from "../layouts/LayoutUser.jsx";
 import HomeUser from "../pages/user/HomeUser.jsx";
 import ProtectRouteUser from "./ProtectRouteUser.jsx";
+import ProtectRouteAdmin from "./ProtectRouteAdmin.jsx";
+import Logout from "../pages/admin/Logout.jsx";
 
 
 //import ProtectRouteAdmin from "./ProtectRouteAdmin.jsx";
@@ -35,12 +37,13 @@ const AppRoutes = () => {
         },
         {
             path: '/admin',
-            element: <LayoutAdmin/>,
+            element: <ProtectRouteAdmin element={<LayoutAdmin/>} />,
             children: [
                 { index: true, element:<Dashboard/> },
                 { path: 'category', element: <Category/> },
                 { path: 'product', element: <Product/> },
                 { path: 'manage', element: <Manage/> },
+                { path: 'logout', element: <Logout/> },
 
             ]
         },
