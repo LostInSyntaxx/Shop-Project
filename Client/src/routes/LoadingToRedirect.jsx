@@ -2,19 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 
 const LoadingToRedirect = () => {
-    const [count, setCount] = useState(10);
+    const [count, setCount] = useState(10); // เปลี่ยนเป็น 10 วินาที
     const [redirect, setRedirect] = useState(false);
 
     useEffect(() => {
-        const hasVisited = localStorage.getItem('hasVisitedRedirectPage');
-        if (hasVisited) {
-            setRedirect(true);
-            return;
-        }
-
-        // ถ้ายังไม่เคยเข้ามา ให้ตั้งค่า Local Storage และเริ่มนับถอยหลัง
-        localStorage.setItem('hasVisitedRedirectPage', 'true');
-
         const interval = setInterval(() => {
             setCount((currentCount) => {
                 if (currentCount === 1) {
@@ -23,7 +14,7 @@ const LoadingToRedirect = () => {
                 }
                 return currentCount - 1;
             });
-        }, 1000);
+        }, 1000); // เปลี่ยนเป็นทุก 1 วินาที
 
         return () => clearInterval(interval);
     }, []);
@@ -43,6 +34,7 @@ const LoadingToRedirect = () => {
                     <span className="text-white">seconds...</span>
                 </div>
                 <div className="mt-6">
+                    {/* Progress Bar with Animation and Gradient */}
                     <div className="w-full bg-white/10 h-3 rounded-full overflow-hidden relative">
                         <div
                             className="h-3 rounded-full"
@@ -61,6 +53,8 @@ const LoadingToRedirect = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Inline CSS for Animation */}
             <style>
                 {`
                     @keyframes progress {
