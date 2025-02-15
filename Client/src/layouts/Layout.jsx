@@ -4,19 +4,19 @@ import MainNav from '../components/MainNav.jsx';
 
 const Layout = () => {
     return (
-        <div className="min-h-screen flex flex-col bg-gray-50">
+        <div className="">
             {/* Navigation Bar */}
-            <header className="bg-white shadow-md">
+            <header className="w-full">
                 <MainNav />
             </header>
 
             {/* Main Content */}
-            <main className="flex-1 p-6">
+            <main className=" w-full">
                 <Outlet />
             </main>
 
-            {/* Footer (Optional) */}
-            <footer className="bg-white shadow-md py-4 text-center text-gray-600">
+            {/* Footer */}
+            <footer className="bg-base-100 shadow-md py-4 text-center text-gray-500">
                 <p>&copy; 2025 Your Company. All rights reserved.</p>
             </footer>
         </div>
