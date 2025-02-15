@@ -202,20 +202,16 @@ const Register = () => {
                             </button>
                         </div>
                     </div>
-
-                    {/* reCAPTCHA */}
                     <div className="flex justify-center">
                         <ReCAPTCHA
                             ref={recaptchaRef}
-                            sitekey="6LeOa9cqAAAAAJ_1VheX_CXbOwzc-PEWWEk-f6Ca" // Replace with your reCAPTCHA site key
+                            sitekey="6LeOa9cqAAAAAJ_1VheX_CXbOwzc-PEWWEk-f6Ca"
                         />
                     </div>
-
-                    {/* Register Button */}
                     <button
                         className="w-full py-2 px-5 rounded-xl bg-white/20 text-white hover:bg-white/30 hover:shadow-lg transition-all duration-200 flex items-center justify-center"
                         type="submit"
-                        disabled={isLoading || isButtonDisabled} // Disable button during loading or cooldown
+                        disabled={isLoading || isButtonDisabled}
                     >
                         {isLoading ? (
                             <>
@@ -247,11 +243,7 @@ const Register = () => {
                             'Register'
                         )}
                     </button>
-
-                    {/* Divider */}
                     <p className="text-center text-white/70 my-3">หรือ</p>
-
-                    {/* Login Link */}
                     <a
                         href="/login"
                         className="block w-full py-2 px-5 rounded-xl bg-white/10 text-white text-center hover:bg-white/20 hover:shadow-lg transition-all duration-200"
