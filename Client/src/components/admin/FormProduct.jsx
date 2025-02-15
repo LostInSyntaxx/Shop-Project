@@ -4,6 +4,7 @@ import { createProduct } from "../../Api/Main-api-pro.jsx";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
 import { FaEdit, FaTrash } from 'react-icons/fa';
+import Uploadfile from "./Uploadfile.jsx";
 
 const initialState = {
     title: "I5-14600K",
@@ -106,7 +107,7 @@ const FormProduct = () => {
     };
 
     return (
-        <div className="container mx-auto p-4 bg-base-300 rounded-lg shadow-lg backdrop-blur-md bg-white/10">
+        <div className="container mx-auto p-4 bg-base-300 rounded-lg shadow-lg bg-white/10">
             <motion.form
                 onSubmit={handleSubmit}
                 className="space-y-4"
@@ -238,6 +239,7 @@ const FormProduct = () => {
                                         >
                                             <FaTrash className="w-4 h-4" />
                                         </button>
+
                                     </div>
                                 </td>
                             </tr>
@@ -270,6 +272,7 @@ const FormProduct = () => {
                         "เพิ่มสินค้า"
                     )}
                 </motion.button>
+                <Uploadfile/>
             </motion.form>
         </div>
     );
