@@ -1,4 +1,12 @@
 const prisma = require('../config/prisma');
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 
 exports.create = async (req,res)=> {
     try {
@@ -212,6 +220,33 @@ exports.searchFilters = async (req,res)=> {
 
         //res.send("Hello from searchFilters Product")
     } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: 'Internal Server Error' })
+    }
+}
+
+exports.createImages = async (req, res) => {
+    try {
+        const result = await cloudinary.uploader.upload(req.body.image,{
+            public_id: `image-Main${Date.now()}`,
+            resource_type: "auto",
+            folder: 'Main-Shop-2025'
+        })
+        res.send(result)
+    } catch (err) {
+        console.error("Cloudinary Upload Error:", err);
+        res.status(500).json({ message: "Internal Server Error", error: err.message });
+    }
+};
+
+exports.removeimage = async (req,res)=> {
+    try {
+        const { public_id } = req.body
+        console.log(public_id)
+        cloudinary.uploader.destroy(public_id,(result)=> {
+            res.send("Remove Image Success")
+        })
+    }catch (err) {
         console.log(err)
         res.status(500).json({ message: 'Internal Server Error' })
     }
