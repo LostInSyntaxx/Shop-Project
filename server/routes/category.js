@@ -6,7 +6,8 @@ const { authCheck, adminCheck } = require('../middlewares/authCheck')
 
 // Protect routes with authentication and admin authorization
 router.post('/category', authCheck, adminCheck,  create);
-router.get('/category', authCheck, adminCheck, list);
+router.get('/category', list);
 router.delete('/category/:id', authCheck, adminCheck, remove);
+
 
 module.exports = router;
