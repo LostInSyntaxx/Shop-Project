@@ -16,8 +16,8 @@ const Layout = () => {
             </main>
 
             {/* Footer */}
-            <footer className="bg-base-100 shadow-md py-4 text-center text-gray-500">
-                <p>&copy; 2025 Your Company. All rights reserved.</p>
+            <footer>
+
             </footer>
         </div>
     );
