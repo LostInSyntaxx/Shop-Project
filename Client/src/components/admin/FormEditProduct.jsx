@@ -18,7 +18,7 @@ const FormEditProduct = () => {
     const [form, setForm] = useState(initialState);
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => { getCategory(token); fetchProduct(token, id); }, [token, id, getCategory]);
+    useEffect(() => { getCategory(); fetchProduct(token, id); }, [token, id, getCategory]);
 
     const fetchProduct = async (token, id) => {
         try { const res = await readProduct(token, id); setForm(res.data); }
@@ -42,13 +42,13 @@ const FormEditProduct = () => {
             const res = await updateProduct(token, id, form);
             Swal.fire({ icon: "success", title: "สำเร็จ!", text: `สินค้า "${res.data.title}" ถูกบันทึกแล้ว` })
                 .then(() => {
-                    navigate("/admin/product"); // Redirect ไปหน้า admin/product หลังจากบันทึกสำเร็จ
+                    navigate("/admin/product");
                 });
         } catch (err) {
             Swal.fire({ icon: "error", title: "เกิดข้อผิดพลาด", text: err.response?.data?.message || "ไม่สามารถบันทึกได้" });
         } finally { setLoading(false); }
     };
-    
+
     return (
         <div className="container mx-auto p-8 bg-black text-gray-100 rounded-2xl shadow-2xl">
             <h1 className="text-3xl font-extrabold text-center mb-8">แก้ไขสินค้า 🛒</h1>
