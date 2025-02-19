@@ -1,54 +1,54 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHome, faStore, faShoppingCart, faSignInAlt, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 
 const MainNav = () => {
     return (
-        <nav className="bg-tranparent py-2 text-white sticky -top-20 hidden lg:block relative z-[9999999] svelte-1mk7zim">
-            <div className="container mx-auto px-4">
+        <nav className="bg-transparent py-3 sticky top-0 z-[9999999]">
+            <div className="container mx-auto px-6">
                 <div className="flex justify-between items-center h-16">
+
+                    {/* LOGO */}
                     <div className="flex items-center space-x-8">
                         <Link
                             to="/"
-                                    className="text-2xl font-bold  bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent hover:scale-105 transition-transform duration-300"
-                            >
+                            className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent hover:scale-105 transition-transform duration-300"
+                        >
                             LOGO
                         </Link>
-                        <div className="flex space-x-6">
-                            <Link
-                                to="/"
-                                className="text-base-content transition duration-300 px-3 py-2 rounded-lg hover:bg-opacity-10 hover:bg-primary hover:shadow-md agd alk aty aul ayp azp bdk"
-                            >
+
+                        {/* เมนูตรงกลาง */}
+                        <div className="flex space-x-6 text-lg font-medium">
+                            <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-opacity-10 hover:bg-primary transition">
+                                <FontAwesomeIcon icon={faHome} />
                                 Home
                             </Link>
-                            <Link
-                                to="/shop"
-                                className="text-base-content  transition duration-300 px-3 py-2 rounded-lg hover:bg-opacity-10 hover:bg-primary hover:shadow-md"
-                            >
+                            <Link to="/shop" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-opacity-10 hover:bg-primary transition">
+                                <FontAwesomeIcon icon={faStore} />
                                 Shop
                             </Link>
-                            <Link
-                                to="/cart"
-                                className="text-base-content  transition duration-300 px-3 py-2 rounded-lg hover:bg-opacity-10 hover:bg-primary hover:shadow-md"
-                            >
-                                cart
+                            <Link to="/cart" className="relative flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-opacity-10 hover:bg-primary transition">
+                                <FontAwesomeIcon icon={faShoppingCart} />
+                                Cart
+                                {/* Badge Counter (แทนค่าจริงด้วย `3`) */}
+                                <span className="absolute -top-2 -right-2  text-white text-xs font-bold px-2 py-1 rounded-full">
+
+                </span>
                             </Link>
                         </div>
                     </div>
+
+                    {/* ปุ่ม Login / Register */}
                     <div className="flex items-center space-x-6">
-                        <div className="flex items-center space-x-4">
-                            <Link
-                                to="/login"
-                                className="py-2 px-7 block"
-                            >
-                                Login
-                            </Link>
-                            <Link
-                                to="/register"
-                                className="py-2 px-7 block bg-black/50 text-white rounded-xl"
-                            >
-                                Register
-                            </Link>
-                        </div>
+                        <Link to="/login" className="flex items-center gap-2 text-white hover:text-gray-300 transition">
+                            <FontAwesomeIcon icon={faSignInAlt} />
+                            Login
+                        </Link>
+                        <Link to="/register" className="flex items-center gap-2 px-5 py-2 bg-primary text-white rounded-xl shadow-lg hover:bg-opacity-80 transition">
+                            <FontAwesomeIcon icon={faUserPlus} />
+                            Register
+                        </Link>
                     </div>
                 </div>
             </div>
