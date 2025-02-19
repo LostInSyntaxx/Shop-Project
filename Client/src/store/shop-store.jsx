@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import axios from "axios";
 import { persist,createJSONStorage } from 'zustand/middleware'
 import {listCategory} from "../Api/Main-Api.jsx";
-import {listProduct} from "../Api/Main-api-pro.jsx";
+import {listProduct,searchFilters} from "../Api/Main-api-pro.jsx";
 
 const shopStore = (set)=> ({
     user: null,
@@ -32,7 +32,15 @@ const shopStore = (set)=> ({
         } catch (err) {
             console.log(err);
         }
-    }
+    },
+    actionSearchFilters : async (arg) => {
+        try {
+            const res = await searchFilters(arg);
+            set({ products: res.data})
+        } catch (err) {
+            console.log(err);
+        }
+    },
 })
 
 
