@@ -18,7 +18,6 @@ const Login = () => {
             [e.target.name]: e.target.value,
         });
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -40,7 +39,6 @@ const Login = () => {
             });
         }
     };
-
     const roleRedirect = (role) => {
         if (role === 'admin') {
             navigate('/admin');
@@ -48,7 +46,6 @@ const Login = () => {
             navigate('/user');
         }
     };
-
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-gray-900 to-black">
             <div className="bg-[#101010] p-8 rounded-2xl shadow-2xl max-w-md w-full">
@@ -67,8 +64,6 @@ const Login = () => {
                             required
                         />
                     </div>
-
-                    {/* Password Input */}
                     <div>
                         <label className="block text-sm font-medium text-white mb-2">Password</label>
                         <input
@@ -81,19 +76,13 @@ const Login = () => {
                             required
                         />
                     </div>
-
-                    {/* Login Button */}
                     <button
                         className="w-full py-2 px-5 rounded-xl bg-white/20 text-white hover:bg-white/30 hover:shadow-lg transition-all duration-200"
                         type="submit"
                     >
-                        Login
+                        เข้าสู่ระบบ
                     </button>
-
-                    {/* Divider */}
                     <p className="text-center text-white/70 my-3">หรือ</p>
-
-                    {/* Register Link */}
                     <a
                         href="/register"
                         className="block w-full py-2 px-5 rounded-xl bg-white/10 text-white text-center hover:bg-white/20 hover:shadow-lg transition-all duration-200"
