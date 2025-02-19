@@ -120,7 +120,7 @@ const Register = () => {
     return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-gray-900 to-black">
             <div className="bg-[#101010] p-8 rounded-2xl shadow-2xl max-w-md w-full">
-                <h2 className="text-3xl font-bold text-center mb-6 text-white">Register</h2>
+                <h2 className="text-3xl font-bold text-center mb-6 text-white">สมัครสมาชิก </h2>
 
                 {/* Error Alert */}
                 {error && (
@@ -240,7 +240,7 @@ const Register = () => {
                         ) : isButtonDisabled ? (
                             `Please wait ${countdown} seconds`
                         ) : (
-                            'Register'
+                            'สมัครสมาชิก'
                         )}
                     </button>
                     <p className="text-center text-white/70 my-3">หรือ</p>
