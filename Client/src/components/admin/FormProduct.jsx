@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import useShopStore from "../../store/shop-store.jsx";
-import { createProduct } from "../../Api/Main-api-pro.jsx";
+import { createProduct, deleteProduct } from "../../Api/Main-api-pro.jsx";
 import Swal from "sweetalert2";
 import Uploadfile from "./Uploadfile.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faEdit, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { Link } from "react-router-dom";
+import { FaEdit, FaTrash } from 'react-icons/fa';
+
 
 
 const initialState = {
-    title: "I5-14600K",
-    description: "desc",
-    price: 590,
-    quantity: 10,
+    title: "",
+    description: "",
+    price: 0,
+    quantity: 0,
     categoryId: "",
     images: []
 };
@@ -25,10 +28,15 @@ const FormProduct = () => {
 
     const [form, setForm] = useState(initialState);
     const [loading, setLoading] = useState(false);
+    const [selectedImages, setSelectedImages] = useState([]);  // State สำหรับลบหลายรูป
+    const [isOpen, setIsOpen] = useState(false);
+    const [photoIndex, setPhotoIndex] = useState(0);
+
+
 
     useEffect(() => {
-        getCategory(token);
-        getProduct(token, 100);
+        getCategory();
+        getProduct(100);
     }, []);
 
     const handleOnChange = (e) => {
@@ -68,7 +76,8 @@ const FormProduct = () => {
                     title: "เพิ่มสินค้าสำเร็จ!",
                     text: `สินค้า "${res.data.title}" ถูกเพิ่มเรียบร้อย`,
                 });
-                setForm(initialState); // Reset form
+                setForm(initialState);
+                getProduct()
             } catch (err) {
                 Swal.fire({
                     icon: "error",
@@ -81,31 +90,63 @@ const FormProduct = () => {
         }, 10000);
     };
 
-    const handleEdit = (id) => {
-        Swal.fire({
-            icon: "info",
-            title: "แก้ไขสินค้า",
-            text: `คุณต้องการแก้ไขสินค้า ID: ${id}`,
-        });
+    const toggleSelectImage = (imageId) => {
+        setSelectedImages((prevSelected) =>
+            prevSelected.includes(imageId)
+                ? prevSelected.filter((id) => id !== imageId)
+                : [...prevSelected, imageId]
+        );
     };
 
-    const handleDelete = (id) => {
-        Swal.fire({
-            icon: "warning",
-            title: "ยืนยันการลบ?",
-            text: "คุณแน่ใจหรือไม่ว่าต้องการลบสินค้านี้?",
+    const handleDeleteMultiple = async () => {
+        if (selectedImages.length === 0) {
+            Swal.fire('แจ้งเตือน', 'กรุณาเลือกรายการก่อนลบ', 'warning');
+            return;
+        }
+
+        const result = await Swal.fire({
+            title: `คุณต้องการลบ ${selectedImages.length} รายการหรือไม่?`,
+            icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: "ลบเลย!",
-            cancelButtonText: "ยกเลิก",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    icon: "success",
-                    title: "ลบสำเร็จ!",
-                    text: "สินค้าถูกลบเรียบร้อยแล้ว",
-                });
-            }
+            confirmButtonText: 'ใช่, ลบเลย!',
+            cancelButtonText: 'ยกเลิก'
         });
+
+        if (result.isConfirmed) {
+            setLoading(true);
+            try {
+                await Promise.all(selectedImages.map((id) => deleteProduct(token, id)));
+                Swal.fire('สำเร็จ!', `ลบ ${selectedImages.length} รายการเรียบร้อย`, 'success');
+                getProduct(token);
+                setSelectedImages([]);
+            } catch (err) {
+                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถลบได้', 'error');
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+    const handleDelete = async (id) => {
+        const result = await Swal.fire({
+            title: 'คุณแน่ใจหรือไม่?',
+            text: "คุณไม่สามารถกู้คืนข้อมูลนี้ได้!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'ใช่, ลบเลย!',
+            cancelButtonText: 'ยกเลิก'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await deleteProduct(token, id);
+                getProduct();
+                Swal.fire('ลบเรียบร้อย!', 'ข้อมูลของคุณถูกลบแล้ว.', 'success');
+            } catch (err) {
+                Swal.fire('เกิดข้อผิดพลาด!', 'ไม่สามารถลบข้อมูลได้.', 'error');
+            }
+        }
     };
 
     return (
@@ -205,39 +246,69 @@ const FormProduct = () => {
                 </button>
             </form>
             <hr className="my-6 border-base-200" />
-            <div className="overflow-x-auto">
-                <table className="table table-zebra table-compact table-hover w-full bg-base-100 shadow-lg rounded-lg">
-                    <thead className="bg-gradient-to-r from-primary to-secondary text-white">
+
+            {/* ปุ่มลบหลายรูป */}
+            <button className="btn btn-error btn-outline mb-4" onClick={handleDeleteMultiple} disabled={selectedImages.length === 0}>
+                ลบที่เลือก ({selectedImages.length})
+            </button>
+
+            {/* Products Table */}
+            <div className="mt-10 overflow-x-auto rounded-lg shadow-md bg-white/20">
+                <table className="table w-full">
+                    <thead className="bg-gray-800 text-white">
                     <tr>
+                        <th>
+                            <input
+                                type="checkbox"
+                                className="checkbox checkbox-primary"
+                                onChange={(e) => {
+                                    if (e.target.checked) {
+                                        setSelectedImages(products.map((item) => item.id));
+                                    } else {
+                                        setSelectedImages([]);
+                                    }
+                                }}
+                                checked={selectedImages.length === products.length && products.length > 0}
+                            />
+                        </th>
                         <th>#</th>
+                        <th>Image</th>
                         <th>ชื่อสินค้า</th>
                         <th>คำอธิบาย</th>
                         <th>ราคา</th>
                         <th>จำนวน</th>
                         <th>ขายแล้ว</th>
                         <th>อัปเดตล่าสุด</th>
-                        <th>การดำเนินการ</th>
+                        <th>จัดการ</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {products.map((item, index) => (
-                        <tr key={index} className="hover:bg-base-200 transition duration-300">
-                            <th>{item.id}</th>
-                            <td className="font-semibold  text-white">{item.title}</td>
-                            <td className="text-gray-600 text-white line-clamp-1">{item.description}</td>
-                            <td className="text-green-500 font-bold">฿{item.price.toLocaleString()}</td>
-                            <td className="text-blue-500">{item.quantity}</td>
-                            <td className="text-purple-500">{item.sold}</td>
-                            <td className="text-gray-500 text-white">{new Date(item.updatedAt).toLocaleDateString()}</td>
+                    {products.map((item, idx) => (
+                        <tr key={idx} className="transition-all duration-300">
                             <td>
-                                <div className="flex gap-2">
-                                    <button className="btn btn-xs btn-outline btn-info hover:scale-105 transition-all">
-                                        <FontAwesomeIcon icon={faEdit} /> แก้ไข
-                                    </button>
-                                    <button className="btn btn-xs btn-outline btn-error hover:scale-105 transition-all">
-                                        <FontAwesomeIcon icon={faTrash} /> ลบ
-                                    </button>
-                                </div>
+                                <input
+                                    type="checkbox"
+                                    className="checkbox checkbox-primary"
+                                    checked={selectedImages.includes(item.id)}
+                                    onChange={() => toggleSelectImage(item.id)}
+                                />
+                            </td>
+                            <td>{item.id}</td>
+                            <td>
+                                {item.images.length > 0
+                                    ? <img className={'w-20 h-20 rounded-lg shadow-md'} src={item.images[0].url} alt="product"/>
+                                    : <div className={'w-20 h-20 bg-base-200 rounded-md flex items-center justify-center text-b'}>No Image</div>
+                                }
+                            </td>
+                            <td>{item.title}</td>
+                            <td>{item.description}</td>
+                            <td>฿{item.price.toLocaleString()}</td>
+                            <td>{item.quantity}</td>
+                            <td>{item.sold}</td>
+                            <td>{new Date(item.updatedAt).toLocaleDateString()}</td>
+                            <td>
+                                <Link className={'btn btn-sm ml-2'} to={'/admin/product/' + item.id}><FontAwesomeIcon icon={faEdit} /></Link>
+                                <button className="btn btn-sm btn-error ml-2" onClick={() => handleDelete(item.id)}><FaTrash /></button>
                             </td>
                         </tr>
                     ))}
