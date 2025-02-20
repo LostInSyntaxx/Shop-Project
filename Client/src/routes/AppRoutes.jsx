@@ -18,6 +18,9 @@ import HomeUser from "../pages/user/HomeUser.jsx";
 import ProtectRouteUser from "./ProtectRouteUser.jsx";
 import ProtectRouteAdmin from "./ProtectRouteAdmin.jsx";
 import Logout from "../pages/admin/Logout.jsx";
+import EditProduct from "../pages/admin/EditProduct.jsx";
+import Payment from "../pages/user/Payment.jsx";
+
 
 
 //import ProtectRouteAdmin from "./ProtectRouteAdmin.jsx";
@@ -42,6 +45,7 @@ const AppRoutes = () => {
                 { index: true, element:<Dashboard/> },
                 { path: 'category', element: <Category/> },
                 { path: 'product', element: <Product/> },
+                { path: 'product/:id', element: <EditProduct/> },
                 { path: 'manage', element: <Manage/> },
                 { path: 'logout', element: <Logout/> },
 
@@ -52,6 +56,7 @@ const AppRoutes = () => {
             element: <ProtectRouteUser element={<LayoutUser/>}/>,
             children: [
                 { index: true, element:<HomeUser/> },
+                { path: 'payment', element:<Payment/> },
             ]
         }
 
