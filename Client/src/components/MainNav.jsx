@@ -2,12 +2,13 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHome, faStore, faShoppingCart, faSignInAlt, faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import useShopStore from "../store/shop-store.jsx";
 
 const MainNav = () => {
-    
+    const carts = useShopStore((s) =>s.carts)
     return (
         <nav className="bg-transparent py-3 sticky top-0 z-[9999999]">
-            <div className="container mx-auto px-6">
+            <div className="container mx-auto px-6 ">
                 <div className="flex justify-between items-center h-16">
 
                     {/* LOGO */}
@@ -32,10 +33,8 @@ const MainNav = () => {
                             <Link to="/cart" className="relative flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-opacity-10 hover:bg-primary transition">
                                 <FontAwesomeIcon icon={faShoppingCart} />
                                 Cart
-
-                                <span className="absolute -top-2 -right-2  text-white text-xs font-bold px-2 py-1 rounded-full">
-
-                </span>
+                                {/* Badge Counter (แทนค่าจริงด้วย `3`) */}
+                                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">{carts.length}</span>
                             </Link>
                         </div>
                     </div>
