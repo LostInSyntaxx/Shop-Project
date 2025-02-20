@@ -62,17 +62,17 @@ const CheckoutUser = () => {
         saveAddress(token, address)
             .then((res) => {
                 setAddressSaved(true);
-                showSwal("success", "✅ ที่อยู่ถูกบันทึกเรียบร้อย!", "คุณสามารถดำเนินการชำระเงินได้");
+                showSwal("success", "ที่อยู่ถูกบันทึกเรียบร้อย!", "คุณสามารถดำเนินการชำระเงินได้");
             })
             .catch((err) => {
-                showSwal("error", "❌ บันทึกที่อยู่ล้มเหลว!", "โปรดลองอีกครั้ง");
+                showSwal("error", "บันทึกที่อยู่ล้มเหลว!", "โปรดลองอีกครั้ง");
                 console.log(err);
             });
     };
 
     const GoToQrCode = () => {
         if (!addressSaved) {
-            showSwal("warning", "⚠️ กรุณาบันทึกที่อยู่!", "คุณต้องบันทึกที่อยู่ก่อนชำระเงิน");
+            showSwal("warning", "กรุณาบันทึกที่อยู่!", "คุณต้องบันทึกที่อยู่ก่อนชำระเงิน");
             return;
         }
         navigate("/user/payment");
