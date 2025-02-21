@@ -5,8 +5,10 @@ import useShopStore from "../store/shop-store.jsx";
 import Swal from "sweetalert2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCreditCard, faCheckCircle, faTimesCircle, faSpinner, faBell } from "@fortawesome/free-solid-svg-icons";
+import {useNavigate} from "react-router-dom";
 
 const CheckoutForm = () => {
+    const navigate = useNavigate()
     const stripe = useStripe();
     const elements = useElements();
     const [message, setMessage] = useState(null);
@@ -55,6 +57,7 @@ const CheckoutForm = () => {
                                 color: "#fff",
                                 confirmButtonColor: "#22c55e",
                             });
+                            navigate('/user/history')
                         }, 1500);
                     }
                 })
