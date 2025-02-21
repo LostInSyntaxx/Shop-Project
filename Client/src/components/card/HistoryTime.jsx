@@ -46,8 +46,6 @@ const HistoryTime = () => {
                                 {item.orderStatus === 'Completed' ? "สำเร็จ" : "ยังไม่เสร็จ"}
                             </div>
                         </div>
-
-                        {/* ตารางแสดงสินค้า */}
                         <div className="p-4 bg-black/50 rounded-lg overflow-auto">
                             <table className="w-full text-left text-gray-300 border-collapse">
                                 <thead className="bg-black/30 text-white uppercase text-md">
