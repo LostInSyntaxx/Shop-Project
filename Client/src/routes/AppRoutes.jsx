@@ -20,6 +20,7 @@ import ProtectRouteAdmin from "./ProtectRouteAdmin.jsx";
 import Logout from "../pages/admin/Logout.jsx";
 import EditProduct from "../pages/admin/EditProduct.jsx";
 import Payment from "../pages/user/Payment.jsx";
+import ManageOrders from "../pages/admin/ManageOrders.jsx";
 
 
 
@@ -46,8 +47,7 @@ const AppRoutes = () => {
                 { path: 'product', element: <Product/> },
                 { path: 'product/:id', element: <EditProduct/> },
                 { path: 'manage', element: <Manage/> },
-                { path: 'logout', element: <Logout/> },
-
+                { path: 'orders', element: <ManageOrders/> },
             ]
         },
         {

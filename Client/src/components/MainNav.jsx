@@ -33,7 +33,6 @@ const MainNav = () => {
                             <Link to="/cart" className="relative flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-opacity-10 hover:bg-primary transition">
                                 <FontAwesomeIcon icon={faShoppingCart} />
                                 Cart
-                                {/* Badge Counter (แทนค่าจริงด้วย `3`) */}
                                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">{carts.length}</span>
                             </Link>
                         </div>

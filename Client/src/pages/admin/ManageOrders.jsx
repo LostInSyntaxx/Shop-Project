@@ -1,8 +1,11 @@
 import React from 'react'
+import TableOrders from "../../components/admin/TableOrders.jsx";
 
 const ManageOrders = () => {
     return (
-        <div>ManageOrders</div>
+        <div>
+            <TableOrders/>
+        </div>
     )
 }
 export default ManageOrders

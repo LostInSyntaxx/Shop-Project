@@ -82,7 +82,7 @@ const CheckoutForm = () => {
         <div className="max-w-md mx-auto bg-black/25 p-6 rounded-xl shadow-lg">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-white/80 flex items-center gap-2">
-                    <FontAwesomeIcon icon={faCreditCard} /> 💳 ชำระเงิน
+                    <FontAwesomeIcon icon={faCreditCard} /> ชำระเงิน
                 </h2>
                 <label className="flex items-center space-x-2 text-white text-xs">
                     <span><FontAwesomeIcon icon={faBell} /> แจ้งเตือน</span>
