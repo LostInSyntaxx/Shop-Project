@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import useShopStore from "../../store/shop-store.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faUndo } from "@fortawesome/free-solid-svg-icons";
+import Swal from "sweetalert2"; // ✅ Import SweetAlert2
 
 const Search = () => {
     const getProduct = useShopStore((state) => state.getProduct);
@@ -13,6 +14,7 @@ const Search = () => {
     const [categorySelected, setCategorySelected] = useState([]);
     const [price, setPrice] = useState([100, 30000]);
     const [ok, setOk] = useState(false);
+    const [isAlertEnabled, setIsAlertEnabled] = useState(true); // ✅ Switch เปิด/ปิด Alert
 
     useEffect(() => {
         getCategory();
@@ -22,6 +24,19 @@ const Search = () => {
         const delay = setTimeout(() => {
             if (text) {
                 actionSearchFilters({ query: text });
+                if (isAlertEnabled) {
+                    Swal.fire({
+                        icon: "info",
+                        title: "🔎 ค้นหาสินค้า",
+                        text: `กำลังค้นหา: "${text}"`,
+                        timer: 1500,
+                        showConfirmButton: false,
+                        background: "#1e1e1e",
+                        color: "#fff",
+                        toast: true,
+                        position: "top-end"
+                    });
+                }
             } else {
                 getProduct();
             }
@@ -42,18 +57,45 @@ const Search = () => {
         }
         setCategorySelected(inState);
 
+        // ✅ เช็คว่ามีหมวดหมู่ที่เลือกหรือไม่
         if (inState.length > 0) {
             actionSearchFilters({ category: inState });
         } else {
-            getProduct();
+            getProduct(); // ✅ ถ้าไม่มีหมวดหมู่ที่เลือก โหลดสินค้าทั้งหมด
+        }
+
+        if (isAlertEnabled) {
+            Swal.fire({
+                icon: "success",
+                title: "✅ อัปเดตหมวดหมู่",
+                text: inState.length > 0 ? `เลือกหมวดหมู่ใหม่แล้ว` : "โหลดสินค้าทั้งหมด",
+                timer: 1500,
+                showConfirmButton: false,
+                background: "#1e1e1e",
+                color: "#fff",
+                toast: true,
+                position: "top-end"
+            });
         }
     };
 
     useEffect(() => {
         actionSearchFilters({ price });
+        if (isAlertEnabled) {
+            Swal.fire({
+                icon: "info",
+                title: "💰 ปรับช่วงราคา",
+                text: `ช่วงราคา: ฿${price[0]} - ฿${price[1]}`,
+                timer: 1500,
+                showConfirmButton: false,
+                background: "#1e1e1e",
+                color: "#fff",
+                toast: true,
+                position: "top-end"
+            });
+        }
     }, [ok]);
 
-    // ✅ อัปเดต Min
     const handleMinPrice = (e) => {
         const newMin = Number(e.target.value);
         if (newMin < price[1]) {
@@ -62,7 +104,6 @@ const Search = () => {
         }
     };
 
-    // ✅ อัปเดต Max
     const handleMaxPrice = (e) => {
         const newMax = Number(e.target.value);
         if (newMax > price[0]) {
@@ -76,13 +117,40 @@ const Search = () => {
         setCategorySelected([]);
         setPrice([1000, 30000]);
         getProduct();
+
+        if (isAlertEnabled) {
+            Swal.fire({
+                icon: "warning",
+                title: "🔄 รีเซ็ตการค้นหา",
+                text: "รีเซ็ตตัวกรองเรียบร้อย",
+                timer: 1500,
+                showConfirmButton: false,
+                background: "#1e1e1e",
+                color: "#fff",
+                toast: true,
+                position: "top-end"
+            });
+        }
     };
 
     return (
         <div className="p-5 rounded-lg">
-            <h2 className="text-xl text-white/80 font-semibold mb-4 flex items-center gap-2">
-                <FontAwesomeIcon icon={faSearch} /> ค้นหาสินค้า
-            </h2>
+            {/* ✅ Switch เปิด/ปิด Alert */}
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl text-white/80 font-semibold flex items-center gap-2">
+                    <FontAwesomeIcon icon={faSearch} /> ค้นหาสินค้า
+                </h2>
+                <label className="flex items-center space-x-2 text-white text-xs">
+                    <span>🔔 แจ้งเตือน</span>
+                    <input
+                        type="checkbox"
+                        checked={isAlertEnabled}
+                        onChange={() => setIsAlertEnabled(!isAlertEnabled)}
+                        className="toggle toggle-sm toggle-primary"
+                    />
+                </label>
+            </div>
+
             <div className="relative mb-4">
                 <input
                     value={text}
@@ -123,24 +191,8 @@ const Search = () => {
                     <span>Max: {price[1]}</span>
                 </div>
                 <div className="flex gap-4">
-                    {/* ✅ Min Price Slider */}
-                    <input
-                        type="range"
-                        min="100"
-                        max="30000"
-                        value={price[0]}
-                        onChange={handleMinPrice}
-                        className="range range-primary"
-                    />
-                    {/* ✅ Max Price Slider */}
-                    <input
-                        type="range"
-                        min="100"
-                        max="30000"
-                        value={price[1]}
-                        onChange={handleMaxPrice}
-                        className="range range-primary"
-                    />
+                    <input type="range" min="100" max="30000" value={price[0]} onChange={handleMinPrice} className="range range-primary" />
+                    <input type="range" min="100" max="30000" value={price[1]} onChange={handleMaxPrice} className="range range-primary" />
                 </div>
             </div>
 

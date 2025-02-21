@@ -17,13 +17,12 @@ const Dashboard = () => {
                     return;
                 }
                 const token = storage.state.token;
-                const res = await axios.get('http://localhost:3000/api/logs', {
+                const res = await axios.get('http://localhost:3000/api/product-logs', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                console.log('Logs:', res.data);
                 setLogs(res.data);
             } catch (err) {
-                console.error('Error fetching logs', err);
+                console.error('Error fetching product logs', err);
             }
         };
         fetchLogs();
@@ -66,7 +65,7 @@ const Dashboard = () => {
         try {
             const storage = JSON.parse(localStorage.getItem('Shop-Project - main'));
             const token = storage.state.token;
-            await axios.delete('http://localhost:3000/api/logs', {
+            await axios.delete('http://localhost:3000/api/product-logs', {
                 headers: { Authorization: `Bearer ${token}` },
                 data: { ids: selectedLogs }
             });
@@ -81,13 +80,13 @@ const Dashboard = () => {
 
     return (
         <div className="container mx-auto p-6 bg-base-100 rounded-xl shadow-2xl">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">ประวัติการเข้าใช้งาน</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">ประวัติการซื้อสินค้า</h1>
 
             {/* ช่องค้นหา */}
             <div className="flex justify-between items-center mb-6">
                 <input
                     type="text"
-                    placeholder="ค้นหา..."
+                    placeholder="ค้นหาสินค้า, ผู้ซื้อ..."
                     className="input input-bordered w-full max-w-lg bg-base-200 focus:bg-base-100 transition-colors duration-300"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -108,7 +107,7 @@ const Dashboard = () => {
                 </button>
             </div>
 
-            {/* ตารางประวัติการเข้าใช้งาน */}
+            {/* ตารางประวัติสินค้า */}
             <div className="overflow-x-auto rounded-lg shadow-md">
                 <table className="table w-full">
                     <thead className="bg-gradient-to-r from-primary to-secondary text-white">
@@ -121,12 +120,11 @@ const Dashboard = () => {
                             />
                         </th>
                         <th className="p-4">ลำดับ</th>
-                        <th className="p-4">ผู้ใช้</th>
-                        <th className="p-4">IP</th>
-                        <th className="p-4">Method</th>
-                        <th className="p-4">URL</th>
-                            <th className="p-4">User Agent</th>
-                        <th className="p-4">วันที่</th>
+                        <th className="p-4">ชื่อสินค้า</th>
+                        <th className="p-4">จำนวน</th>
+                        <th className="p-4">ราคา</th>
+                        <th className="p-4">ผู้ซื้อ</th>
+                        <th className="p-4">วันที่ซื้อ</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -140,16 +138,15 @@ const Dashboard = () => {
                                 />
                             </td>
                             <td className="p-4">{indexOfFirstLog + index + 1}</td>
-                            <td className="p-4">{log.userId || 'ไม่ระบุ'}</td>
-                            <td className="p-4">{log.ip}</td>
-                            <td className="p-4">{log.method}</td>
-                            <td className="p-4">{log.url}</td>
-                            <td className="p-4">{log.userAgent}</td>
-                            <td className="p-4">{new Date(log.createdAt).toLocaleString()}</td>
+                            <td className="p-4">{log.productName || 'ไม่ระบุ'}</td>
+                            <td className="p-4">{log.quantity}</td>
+                            <td className="p-4">{log.price}</td>
+                            <td className="p-4">{log.buyerName}</td>
+                            <td className="p-4">{new Date(log.purchaseDate).toLocaleString()}</td>
                         </tr>
                     )) : (
                         <tr>
-                            <td colSpan="8" className="text-center p-4 text-gray-500">ไม่พบข้อมูล</td>
+                            <td colSpan="7" className="text-center p-4 text-gray-500">ไม่พบข้อมูล</td>
                         </tr>
                     )}
                     </tbody>

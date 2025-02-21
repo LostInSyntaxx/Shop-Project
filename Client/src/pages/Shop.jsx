@@ -31,7 +31,7 @@ const Shop = () => {
             </div>
 
             {/* Cart Section */}
-            <div className="w-1/4 p-4 bg-black/25 h-screen overflow-y-auto rounded-2xl gap-4">
+            <div className="w-1/4 p-4 h-screen overflow-y-auto rounded-2xl gap-4">
                 <CartCard/>
             </div>
         </div>

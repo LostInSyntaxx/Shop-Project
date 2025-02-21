@@ -3,7 +3,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Home from  '../pages/Home.jsx'
 import Shop from  '../pages/Shop.jsx'
 import Cart from "../pages/Cart.jsx";
-import History from "../pages/History.jsx";
+import History from "../pages/user/History.jsx";
 import Checkout from "../pages/Checkout.jsx";
 import Login from "../pages/auth/Login.jsx";
 import Register from "../pages/auth/Register.jsx";
@@ -32,7 +32,6 @@ const AppRoutes = () => {
                 { index: true, element:<Home/> },
                 { path: 'shop', element:<Shop/> },
                 { path: 'cart', element:<Cart/> },
-                { path: 'history', element:<History/> },
                 { path: 'checkout', element:<Checkout/> },
                 { path: 'login', element:<Login/> },
                 { path: 'register', element:<Register/> },
@@ -57,6 +56,7 @@ const AppRoutes = () => {
             children: [
                 { index: true, element:<HomeUser/> },
                 { path: 'payment', element:<Payment/> },
+                { path: 'history', element:<History/> },
             ]
         }
 

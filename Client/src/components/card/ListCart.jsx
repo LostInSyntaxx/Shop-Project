@@ -67,6 +67,13 @@ const ListCart = () => {
                 color: "#fff"
             });
             console.log(err);
+            Swal.fire({
+                icon: "error",
+                title: "เกิดข้อผิดพลาด!",
+                background: "#1e1e1e",
+                color: "#fff",
+                text: (err.response.data.message),  // แสดงข้อความที่ได้รับจากเซิร์ฟเวอร์
+            });
         }
     };
 

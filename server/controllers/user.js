@@ -14,22 +14,22 @@ exports.listUsers = async (req, res) => {
         res.send(users)
     } catch (err) {
         console.log(err)
-        res.status(500).json({ message: "Internal Server Error"})
+        res.status(500).json({ message: "Internal Server Error" })
     }
 }
 
 exports.changeStatus = async (req, res) => {
     try {
-        const {id , enabled} = req.body
-        console.log(id , enabled)
+        const { id, enabled } = req.body
+        console.log(id, enabled)
         const user = await prisma.user.update({
-            where: {id:Number(id) },
-            data: {enabled: enabled}
+            where: { id: Number(id) },
+            data: { enabled: enabled }
         })
         res.send('Update Status Success')
     } catch (err) {
         console.log(err)
-        res.status(500).json({ message: "Internal Server Error"})
+        res.status(500).json({ message: "Internal Server Error" })
     }
 }
 
@@ -38,13 +38,13 @@ exports.changeRole = async (req, res) => {
         const { id, role } = req.body;
         console.log(id, role);
         const user = await prisma.user.update({
-            where: { id:Number(id)},
-            data: {role: role}
+            where: { id: Number(id) },
+            data: { role: role }
         })
         res.send('Update Role Success')
     } catch (err) {
         console.log(err)
-        res.status(500).json({ message: "Internal Server Error"})
+        res.status(500).json({ message: "Internal Server Error" })
     }
 }
 
@@ -52,9 +52,22 @@ exports.userCart = async (req, res) => {
     try {
         const { cart } = req.body
         const user = await prisma.user.findFirst({
-            where: {id :Number(req.user.id)}
+            where: { id: Number(req.user.id) }
         })
         //console.log(user)
+
+        for (const item of cart) {
+            const product = await prisma.product.findUnique({
+              where: { id: item.id },
+              select: { quantity: true, title: true },
+            });
+            if (!product || item.count > product.quantity) {
+              return res.status(400).json({
+                ok: false,
+                message: `ขออภัย. สินค้า ${product?.title || "product"} หมด`,
+              });
+            }
+          }
 
         await prisma.productOnCart.deleteMany({
             where: {
@@ -68,13 +81,13 @@ exports.userCart = async (req, res) => {
             where: { orderedById: user.id }
         })
 
-        let products = cart.map((item)=> ({
+        let products = cart.map((item) => ({
             productId: item.id,
             count: item.count,
             price: item.price
         }))
 
-        let cartTotal = products.reduce((sum, item)=> sum+item.price *  item.count, 0)
+        let cartTotal = products.reduce((sum, item) => sum + item.price * item.count, 0)
 
         const newCart = await prisma.cart.create({
             data: {
@@ -90,7 +103,7 @@ exports.userCart = async (req, res) => {
         res.send('Add Cart Ok')
     } catch (err) {
         console.log(err)
-        res.status(500).json({ message: "Internal Server Error"})
+        res.status(500).json({ message: "Internal Server Error" })
     }
 }
 
@@ -115,7 +128,7 @@ exports.getUserCart = async (req, res) => {
         })
     } catch (err) {
         console.log(err)
-        res.status(500).json({ message: "Internal Server Error"})
+        res.status(500).json({ message: "Internal Server Error" })
     }
 }
 
@@ -124,14 +137,14 @@ exports.emptyCart = async (req, res) => {
         const cart = await prisma.cart.findFirst({
             where: { orderedById: Number(req.user.id) }
         })
-        if(!cart){
+        if (!cart) {
             return res.status(400).json({ message: 'Cart not found' })
         }
         await prisma.productOnCart.deleteMany({
             where: { cartId: cart.id }
         })
         const result = await prisma.cart.deleteMany({
-            where: {orderedById:Number(req.user.id)}
+            where: { orderedById: Number(req.user.id) }
         })
         console.log(result)
         res.json({
@@ -140,7 +153,7 @@ exports.emptyCart = async (req, res) => {
         })
     } catch (err) {
         console.log(err)
-        res.status(500).json({ message: "Internal Server Error"})
+        res.status(500).json({ message: "Internal Server Error" })
     }
 }
 
@@ -156,25 +169,22 @@ exports.saveAddress = async (req, res) => {
                 address: address
             }
         })
-        res.json({ ok: true, message: 'Address update Success'})
+        res.json({ ok: true, message: 'Address update Success' })
     } catch (err) {
         console.log(err)
-        res.status(500).json({ message: "Internal Server Error"})
+        res.status(500).json({ message: "Internal Server Error" })
     }
 }
 
 exports.saveOrder = async (req, res) => {
     try {
 
-        if (!req.user || !req.user.id) {
-            return res.status(401).json({ ok: false, message: "Unauthorized" });
-        }
+        // console.log(req.body)
+        // return res.send('Hello Testpay')
+        const { id, amount, status , currency, } = req.body.paymentIntent;
 
-        const userId = Number(req.user.id);
-
-       
         const userCart = await prisma.cart.findFirst({
-            where: { orderedById: userId },
+            where: { orderedById: Number(req.user.id) },
             include: { products: true }
         });
 
@@ -182,28 +192,18 @@ exports.saveOrder = async (req, res) => {
             return res.status(400).json({ ok: false, message: "Cart is Empty" });
         }
 
+        // for (const item of userCart.products) {
+        //     const product = productMap.get(item.productId);
+        //     if (!product || item.count > product.quantity) {
+        //         return res.status(400).json({
+        //             ok: false,
+        //             message: `ขออภัย. สินค้า ${product?.title || 'ไม่ทราบชื่อ'} หมด`
+        //         });
+        //     }
+        // }
 
-        const productIds = userCart.products.map(item => item.productId);
-        const products = await prisma.product.findMany({
-            where: { id: { in: productIds } },
-            select: { id: true, quantity: true, title: true }
-        });
+        const amountTHB = Number(amount) / 100
 
-
-        const productMap = new Map(products.map(p => [p.id, p]));
-
-
-        for (const item of userCart.products) {
-            const product = productMap.get(item.productId);
-            if (!product || item.count > product.quantity) {
-                return res.status(400).json({
-                    ok: false,
-                    message: `ขออภัย. สินค้า ${product?.title || 'ไม่ทราบชื่อ'} หมด`
-                });
-            }
-        }
-
-        // สร้างคำสั่งซื้อ
         const order = await prisma.order.create({
             data: {
                 products: {
@@ -213,24 +213,30 @@ exports.saveOrder = async (req, res) => {
                         price: item.price
                     }))
                 },
-                orderedBy: { connect: { id: userId } },
-                cartTotal: userCart.cartTotal
+                orderedBy: {
+                    connect: { id: req.user.id }
+                },
+                cartTotal: userCart.cartTotal,
+                strpePaymentId: id,
+                amount: amountTHB,
+                status: status,
+                currentcy: currency
             }
         });
 
-
-        const updateStockOperations = userCart.products.map(item => ({
+        const update = userCart.products.map((item) => ({
             where: { id: item.productId },
             data: {
                 quantity: { decrement: item.count },
                 sold: { increment: item.count }
             }
-        }));
+        }))
 
-        await Promise.all(updateStockOperations.map(update => prisma.product.update(update)));
+        await Promise.all(
+            update.map((updated) => prisma.product.update(updated))
+        )
 
-        // ลบตะกร้าสินค้าหลังจากสร้างคำสั่งซื้อสำเร็จ
-        await prisma.cart.deleteMany({ where: { orderedById: userId } });
+        await prisma.cart.deleteMany({ where: { orderedById: Number(req.user.id) } });
 
         return res.json({ ok: true, order });
 
@@ -240,24 +246,27 @@ exports.saveOrder = async (req, res) => {
     }
 };
 
-exports.getOrder = async (req,res)=> {
+
+exports.getOrder = async (req, res) => {
     try {
+        //code
         const orders = await prisma.order.findMany({
             where: { orderedById: Number(req.user.id) },
             include: {
-                products:{
-                    include: true
-                }
-            }
-        })
-        if(orders.length ===0) {
-            return res.status(400).json({ ok: false, message: 'No orders' })
+                products: {
+                    include: {
+                        product: true,
+                    },
+                },
+            },
+        });
+        if (orders.length === 0) {
+            return res.status(400).json({ ok: false, message: "No orders" });
         }
-        res.json({ ok: true, orders })
-        console.log(orders)
-        res.send('Hello getOrder')
+
+        res.json({ ok: true, orders });
     } catch (err) {
-        console.log(err)
-        res.status(500).json({ message: 'Server Error' })
+        console.log(err);
+        res.status(500).json({ message: "Server Error" });
     }
-}
+};

@@ -35,23 +35,25 @@ exports.create = async (req,res)=> {
     }
 }
 
-exports.list = async (req,res)=> {
+exports.list = async (req, res) => {
     try {
-        const { count } = req.params
+        const { count } = req.params;
+        const takeCount = count ? parseInt(count) : undefined; // ตรวจสอบว่ามี count จริงหรือไม่
         const products = await prisma.product.findMany({
-            take: parseInt(count),
+            take: takeCount, // ใช้ค่า takeCount ที่ถูกต้อง
             orderBy: { createdAt: 'desc' },
             include: {
                 category: true,
                 images: true
             }
-        })
-        res.send(products)
+        });
+        res.send(products);
     } catch (err) {
-        console.log(err)
-        res.status(500).json({ message: 'Internal Server Error' })
+        console.log(err);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-}
+};
+
 
 exports.read = async (req,res)=> {
     try {
@@ -113,6 +115,23 @@ exports.update = async (req,res)=> {
 exports.remove = async (req,res)=> {
     try {
         const { id } = req.params
+
+        const product = await prisma.product.findFirst({
+            where: { id: Number(id) },
+            include: { images: true }
+        })
+        if (!product) {
+            return res.status(400).json({ message: 'Product not Found!!' })
+        }
+        const deletedImage = product.images.map((image)=>
+            new Promise((resolve, reject)=> {
+                cloudinary.uploader.destroy(image.public_id, (error,result)=> {
+                    if(error) reject(error)
+                    else resolve(result)
+                })
+            })
+        )
+        await Promise.all(deletedImage)
         await prisma.product.delete({
             where: {
                 id: Number(id)
@@ -251,3 +270,4 @@ exports.removeimage = async (req,res)=> {
         res.status(500).json({ message: 'Internal Server Error' })
     }
 }
+
