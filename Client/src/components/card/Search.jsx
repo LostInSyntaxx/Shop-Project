@@ -27,14 +27,12 @@ const Search = () => {
                 if (isAlertEnabled) {
                     Swal.fire({
                         icon: "info",
-                        title: "🔎 ค้นหาสินค้า",
+                        title: "ค้นหาสินค้า",
                         text: `กำลังค้นหา: "${text}"`,
                         timer: 1500,
                         showConfirmButton: false,
                         background: "#1e1e1e",
                         color: "#fff",
-                        toast: true,
-                        position: "top-end"
                     });
                 }
             } else {
@@ -57,24 +55,21 @@ const Search = () => {
         }
         setCategorySelected(inState);
 
-        // ✅ เช็คว่ามีหมวดหมู่ที่เลือกหรือไม่
         if (inState.length > 0) {
             actionSearchFilters({ category: inState });
         } else {
-            getProduct(); // ✅ ถ้าไม่มีหมวดหมู่ที่เลือก โหลดสินค้าทั้งหมด
+            getProduct();
         }
 
         if (isAlertEnabled) {
             Swal.fire({
                 icon: "success",
-                title: "✅ อัปเดตหมวดหมู่",
+                title: "อัปเดตหมวดหมู่",
                 text: inState.length > 0 ? `เลือกหมวดหมู่ใหม่แล้ว` : "โหลดสินค้าทั้งหมด",
                 timer: 1500,
                 showConfirmButton: false,
                 background: "#1e1e1e",
                 color: "#fff",
-                toast: true,
-                position: "top-end"
             });
         }
     };
@@ -84,14 +79,12 @@ const Search = () => {
         if (isAlertEnabled) {
             Swal.fire({
                 icon: "info",
-                title: "💰 ปรับช่วงราคา",
+                title: "ปรับช่วงราคา",
                 text: `ช่วงราคา: ฿${price[0]} - ฿${price[1]}`,
                 timer: 1500,
                 showConfirmButton: false,
                 background: "#1e1e1e",
                 color: "#fff",
-                toast: true,
-                position: "top-end"
             });
         }
     }, [ok]);
@@ -121,14 +114,12 @@ const Search = () => {
         if (isAlertEnabled) {
             Swal.fire({
                 icon: "warning",
-                title: "🔄 รีเซ็ตการค้นหา",
+                title: "รีเซ็ตการค้นหา",
                 text: "รีเซ็ตตัวกรองเรียบร้อย",
                 timer: 1500,
                 showConfirmButton: false,
                 background: "#1e1e1e",
                 color: "#fff",
-                toast: true,
-                position: "top-end"
             });
         }
     };
