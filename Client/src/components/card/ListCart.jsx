@@ -29,8 +29,6 @@ const ListCart = () => {
                 text: "กรุณาเพิ่มสินค้าก่อนทำการสั่งซื้อ",
                 timer: 3000,
                 showConfirmButton: false,
-                toast: true,
-                position: "top-end",
                 background: "#1e1e1e",
                 color: "#fff"
             });
@@ -45,8 +43,6 @@ const ListCart = () => {
                 text: "กำลังไปที่หน้าชำระเงิน...",
                 timer: 2500,
                 showConfirmButton: false,
-                toast: true,
-                position: "top-end",
                 background: "#1e1e1e",
                 color: "#fff"
             });
@@ -61,8 +57,6 @@ const ListCart = () => {
                 text: "ไม่สามารถสั่งซื้อได้ กรุณาลองใหม่อีกครั้ง",
                 timer: 3000,
                 showConfirmButton: false,
-                toast: true,
-                position: "top-end",
                 background: "#1e1e1e",
                 color: "#fff"
             });
