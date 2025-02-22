@@ -7,7 +7,7 @@ const Home = () => {
         <div>
             <ContentCar/>
 
-    <p className={'text-2xl text-center mt-4'}>สินค้าขายอย่างดี</p>
+    <p className={'text-2xl text-center my-4'}>สินค้าขายอย่างดี</p>
             <BestSeller/>
         </div>
     )
