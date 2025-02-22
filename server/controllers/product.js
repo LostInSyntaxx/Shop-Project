@@ -150,7 +150,7 @@ exports.listby = async (req,res)=> {
         const products = await prisma.product.findMany({
             take: limit,
             orderBy: { [sort]:order },
-            include: { category: true }
+            include: { category: true,images: true }
         })
         res.send(products)
     } catch (err) {
