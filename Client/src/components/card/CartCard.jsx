@@ -46,15 +46,11 @@ const CartCard = () => {
             }
         });
     };
-
-    // ✅ ซ่อนคอมโพเนนต์ถ้าไม่มีสินค้า
     if (carts.length === 0) return null;
-
     return (
         <div data-aos="fade-up">
             <h1 className="text-xl font-bold mb-4">ตะกร้าสินค้า</h1>
             <div className="bg-black/20 rounded-xl p-4">
-                {/* Card */}
                 {carts.map((item, index) => (
                     <div
                         key={index}
@@ -87,8 +83,6 @@ const CartCard = () => {
                                 </button>
                             )}
                         </div>
-
-                        {/* Row 2 - Quantity & Price */}
                         <div className="flex justify-between items-center">
                             <div className="flex items-center gap-2">
                                 <button onClick={() => actionUpdateQuantity(item.id, item.count - 1)} className="btn btn-sm">
@@ -104,7 +98,6 @@ const CartCard = () => {
                     </div>
                 ))}
 
-                {/* Total */}
                 <div className="mt-6">
                     <div className="flex justify-between px-2">
                         <span className="text-md font-medium">รวม</span>
