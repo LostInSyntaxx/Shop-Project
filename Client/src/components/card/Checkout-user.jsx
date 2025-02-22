@@ -39,7 +39,6 @@ const CheckoutUser = () => {
             });
     };
 
-    // ✅ SweetAlert2 Notification Function
     const showSwal = (icon, title, text) => {
         Swal.fire({
             icon: icon,
@@ -47,8 +46,6 @@ const CheckoutUser = () => {
             text: text,
             timer: 3000,
             showConfirmButton: false,
-            toast: true,
-            position: "top-end",
             background: "#1e1e1e",
             color: "#fff"
         });
@@ -82,7 +79,7 @@ const CheckoutUser = () => {
         <div className="mx-auto p-6 flex gap-6">
             {/* Left Section (ที่อยู่การจัดส่ง) */}
             <div className="w-2/3">
-                <div className="bg-black/25 p-6 rounded-lg shadow-lg space-y-4">
+                <div className="bg-black/25 p-6 rounded-lg  space-y-4">
                     <h2 className="text-lg font-semibold">
                         <FontAwesomeIcon icon={faHome} className="mr-2 text-blue-400" /> ที่อยู่การจัดส่ง
                     </h2>
@@ -94,7 +91,7 @@ const CheckoutUser = () => {
                     />
                     <button
                         onClick={hdSaveAddress}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 hover:scale-105 transition-transform"
+                        className="bg-blue-500 text-white px-4 py-2 rounded-lg  hover:bg-blue-700 hover:scale-105 transition-transform"
                     >
                         Save Address
                     </button>
@@ -103,7 +100,7 @@ const CheckoutUser = () => {
 
             {/* Right Section (คำสั่งสินค้าของคุณ) */}
             <div className="w-1/3 flex justify-end">
-                <div className="bg-black/25 rounded-2xl p-6 space-y-4 shadow-lg w-full">
+                <div className="bg-black/25 rounded-2xl p-6 space-y-4  w-full">
                     <h2 className="text-lg font-bold">
                         <FontAwesomeIcon icon={faCartArrowDown} className="mr-2 text-green-400" /> คำสั่งสินค้าของคุณ
                     </h2>
