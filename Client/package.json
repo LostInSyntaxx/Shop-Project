@@ -14,6 +14,7 @@
     "@fortawesome/free-regular-svg-icons": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@hookform/resolvers": "^4.1.1",
     "@stripe/react-stripe-js": "^3.1.1",
     "@stripe/stripe-js": "^5.6.0",
     "@sweetalert2/theme-dark": "^5.0.26",
@@ -28,13 +29,16 @@
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.5",
     "react-google-recaptcha": "^3.1.0",
+    "react-hook-form": "^7.54.2",
     "react-icons": "^5.4.0",
     "react-image-file-resizer": "^0.4.8",
     "react-router-dom": "^6.29.0",
     "sweetalert2": "^11.16.1",
     "swiper": "^11.2.4",
     "tailwindcss": "^4.0.6",
-    "zustand": "^5.0.3"
+    "zod": "^3.24.2",
+    "zustand": "^5.0.3",
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
