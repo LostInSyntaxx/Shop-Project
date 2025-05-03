@@ -35,11 +35,13 @@ const CheckoutForm = () => {
             if (isAlertEnabled) {
                 Swal.fire({
                     icon: "error",
-                    title: "การชำระเงินล้มเหลว",
+                    title: "Payment Failed",
                     text: payload.error.message,
-                    background: "#1e1e1e",
+                    background: "#1a1a2e",
                     color: "#fff",
-                    confirmButtonColor: "#ff4d4d",
+                    confirmButtonColor: "#e94560",
+                    confirmButtonText: "Try Again",
+                    iconColor: "#e94560"
                 });
             }
         } else {
@@ -48,13 +50,19 @@ const CheckoutForm = () => {
                     if (isAlertEnabled) {
                         Swal.fire({
                             icon: "success",
-                            title: "ชำระเงินสำเร็จ!",
-                            text: "คำสั่งซื้อของคุณได้รับการยืนยันแล้ว",
-                            background: "#1e1e1e",
+                            title: "Payment Successful!",
+                            text: "Your order has been confirmed",
+                            background: "#1a1a2e",
                             color: "#fff",
-                            confirmButtonColor: "#22c55e",
+                            confirmButtonColor: "#0f3460",
+                            confirmButtonText: "View Orders",
+                            iconColor: "#4ade80"
+                        }).then(() => {
+                            clearCart();
+                            navigate('/user/history');
                         });
-                        clearCart()
+                    } else {
+                        clearCart();
                         navigate('/user/history');
                     }
                 })
@@ -62,11 +70,12 @@ const CheckoutForm = () => {
                     if (isAlertEnabled) {
                         Swal.fire({
                             icon: "error",
-                            title: "เกิดข้อผิดพลาด",
-                            text: "ไม่สามารถบันทึกคำสั่งซื้อได้ กรุณาลองใหม่",
-                            background: "#1e1e1e",
+                            title: "Error Occurred",
+                            text: "Failed to save your order. Please try again.",
+                            background: "#1a1a2e",
                             color: "#fff",
-                            confirmButtonColor: "#ff4d4d",
+                            confirmButtonColor: "#e94560",
+                            confirmButtonText: "OK"
                         });
                     }
                 });
@@ -76,62 +85,99 @@ const CheckoutForm = () => {
     };
 
     return (
-        <div className="max-w-md mx-auto bg-black/25 p-6 rounded-xl shadow-lg">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-white/80 flex items-center gap-2">
-                    <FontAwesomeIcon icon={faCreditCard} /> ชำระเงิน
-                </h2>
-                <label className="flex items-center space-x-2 text-white text-xs">
-                    <span><FontAwesomeIcon icon={faBell} /> แจ้งเตือน</span>
-                    <input
-                        type="checkbox"
-                        checked={isAlertEnabled}
-                        onChange={() => setIsAlertEnabled(!isAlertEnabled)}
-                        className="toggle toggle-sm toggle-primary"
-                    />
+        <div className="max-w-md mx-auto bg-gradient-to-br from-gray-900 to-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700">
+            <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-3">
+                    <div className="p-3 bg-indigo-600 rounded-lg shadow-md">
+                        <FontAwesomeIcon icon={faCreditCard} className="text-white text-xl" />
+                    </div>
+                   <h2 className="text-gradient">Payment Details</h2>
+                </div>
+                <label className="flex items-center space-x-2 cursor-pointer group">
+                    <div className="relative">
+                        <input
+                            type="checkbox"
+                            checked={isAlertEnabled}
+                            onChange={() => setIsAlertEnabled(!isAlertEnabled)}
+                            className="sr-only"
+                        />
+                        <div className={`block w-12 h-6 rounded-full transition-colors ${isAlertEnabled ? 'bg-indigo-600' : 'bg-gray-600'}`}></div>
+                        <div className={`absolute left-1 top-1 w-4 h-4 rounded-full transition-all duration-300 ${isAlertEnabled ? 'translate-x-6 bg-white' : 'bg-gray-300'}`}></div>
+                    </div>
+                    <span className="text-gray-300 text-sm font-medium flex items-center gap-1 group-hover:text-gray-200 transition-colors">
+                        <FontAwesomeIcon icon={faBell} size="sm" /> Alerts
+                    </span>
                 </label>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="p-4 bg-black/40 rounded-lg border border-gray-600">
+            
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="p-5 bg-gray-800/60 rounded-xl border border-gray-700 backdrop-blur-sm shadow-inner">
                     <PaymentElement
                         options={{
                             style: {
                                 base: {
-                                    color: "#ffffff", // ✅ ตัวหนังสือสีขาว
+                                    color: "#ffffff",
                                     fontSize: "16px",
+                                    fontFamily: 'Inter, sans-serif',
                                     "::placeholder": {
-                                        color: "#aaaaaa" // ✅ Placeholder สีเทาอ่อน
+                                        color: "#a0aec0"
                                     },
-                                    iconColor: "#ffffff", // ✅ ไอคอนสีขาว
+                                    iconColor: "#a0aec0",
                                 },
                                 invalid: {
-                                    color: "#ff4d4d", // ✅ สีแดงถ้าข้อมูลผิด
+                                    color: "#ef4444",
+                                    iconColor: "#ef4444"
                                 }
+                            },
+                            layout: {
+                                type: "tabs",
+                                defaultCollapsed: false
                             }
                         }}
                     />
                 </div>
+                
                 <button
                     disabled={isLoading || !stripe || !elements}
-                    className={`w-full py-3 rounded-lg text-white font-semibold transition-all duration-200
-                    ${isLoading ? "bg-gray-500 cursor-not-allowed" : "bg-green-500 hover:bg-green-600 active:scale-95"}
-                `}
+                    className={`w-full py-3.5 rounded-xl text-white font-semibold transition-all duration-300 shadow-lg
+                        ${isLoading ? "bg-gray-600 cursor-not-allowed" : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 active:scale-[0.98]"}
+                        flex items-center justify-center gap-2 relative overflow-hidden
+                    `}
                 >
+                    {isLoading && (
+                        <span className="absolute inset-0 bg-white/10 backdrop-blur-[1px]"></span>
+                    )}
                     {isLoading ? (
-                        <div className="flex items-center justify-center gap-2">
+                        <>
                             <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
-                            กำลังชำระเงิน...
-                        </div>
+                            Processing Payment...
+                            
+                        </>
+
                     ) : (
                         <>
-                            <FontAwesomeIcon icon={faCheckCircle} /> ชำระเงิน
+                            <FontAwesomeIcon icon={faCheckCircle} />
+                            Pay Now
                         </>
                     )}
                 </button>
-                {message && <div className="text-red-400 text-sm mt-3 flex items-center gap-2">
-                    <FontAwesomeIcon icon={faTimesCircle} /> {message}
-                </div>}
+                
+                {message && (
+                    <div className="p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-300 text-sm flex items-center gap-3 animate-fade-in">
+                        <FontAwesomeIcon icon={faTimesCircle} className="text-red-400" />
+                        <span>{message}</span>
+                    </div>
+                )}
             </form>
+            
+            <div className="mt-6 pt-6 border-t border-gray-700">
+                <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    <span>Payments are secure and encrypted</span>
+                </div>
+            </div>
         </div>
     );
 };
