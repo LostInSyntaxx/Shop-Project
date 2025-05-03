@@ -41,3 +41,11 @@ export const changeUserRole= async (token,value) => {
         }
     })
 }
+
+export const deleteUser = async (token,id) => {
+    return axios.delete(`http://localhost:3000/api/users/${id}`, {
+        headers : {
+            Authorization: `Bearer ${token}`
+        }
+    })
+}
