@@ -2,31 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { createCategory, listCategory, removeCategory } from "../../Api/Main-Api.jsx";
 import useShopStore from "../../store/shop-store.jsx";
 import Swal from "sweetalert2";
-
-// SVG Icons
-const PlusIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-    </svg>
-);
-
-const TrashIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-    </svg>
-);
-
-const MoonIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-    </svg>
-);
-
-const SunIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
-    </svg>
-);
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faTrash, faMoon, faSun, faLayerGroup, faSpinner, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 
 const FormCategory = () => {
     const token = useShopStore((state) => state.token);
@@ -42,214 +19,354 @@ const FormCategory = () => {
     }, []);
 
     const handleSelectCategory = (id) => {
-        if (selectedCategories.includes(id)) {
-            setSelectedCategories(selectedCategories.filter((item) => item !== id));
-        } else {
-            setSelectedCategories([...selectedCategories, id]);
-        }
+        setSelectedCategories(prev => 
+            prev.includes(id) 
+                ? prev.filter(item => item !== id) 
+                : [...prev, id]
+        );
     };
 
     const handleBulkDelete = async () => {
         if (selectedCategories.length === 0) {
             return Swal.fire({
                 icon: "warning",
-                title: "กรุณาเลือกหมวดหมู่ที่ต้องการลบ",
+                title: "Please select categories to delete",
+                background: darkMode ? '#1F2937' : '#fff',
+                color: darkMode ? '#fff' : '#111827',
+                customClass: {
+                    popup: 'rounded-xl shadow-2xl'
+                }
             });
         }
 
-        const confirmDelete = await Swal.fire({
-            title: "ยืนยันการลบ?",
-            text: `คุณแน่ใจหรือไม่ว่าต้องการลบ ${selectedCategories.length} หมวดหมู่?`,
+        const { isConfirmed } = await Swal.fire({
+            title: "Confirm Deletion?",
+            html: `Are you sure you want to delete <b>${selectedCategories.length}</b> categories?`,
             icon: "warning",
             showCancelButton: true,
-            confirmButtonText: "ลบเลย!",
-            cancelButtonText: "ยกเลิก",
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Delete",
+            cancelButtonText: "Cancel",
+            confirmButtonColor: "#EF4444",
+            cancelButtonColor: "#6B7280",
+            background: darkMode ? '#1F2937' : '#fff',
+            color: darkMode ? '#fff' : '#111827',
+            customClass: {
+                popup: 'rounded-xl shadow-2xl',
+                confirmButton: 'px-4 py-2 rounded-lg',
+                cancelButton: 'px-4 py-2 rounded-lg'
+            }
         });
 
-        if (confirmDelete.isConfirmed) {
-            setLoading(true);
+        if (!isConfirmed) return;
 
-            try {
-                await Promise.all(selectedCategories.map((id) => removeCategory(token, id)));
-                Swal.fire({
-                    icon: "success",
-                    title: "ลบสำเร็จ!",
-                    text: `ลบหมวดหมู่ทั้งหมด ${selectedCategories.length} รายการเรียบร้อย`,
-                });
-                setSelectedCategories([]);
-                getCategory(token);
-            } catch (err) {
-                Swal.fire({
-                    icon: "error",
-                    title: "เกิดข้อผิดพลาด",
-                    text: "ไม่สามารถลบหมวดหมู่ได้",
-                });
-            } finally {
-                setLoading(false);
-            }
+        setLoading(true);
+        try {
+            await Promise.all(selectedCategories.map(id => removeCategory(token, id)));
+            await Swal.fire({
+                icon: "success",
+                title: "Deleted!",
+                html: `Successfully deleted <b>${selectedCategories.length}</b> categories`,
+                background: darkMode ? '#1F2937' : '#fff',
+                color: darkMode ? '#fff' : '#111827',
+                customClass: {
+                    popup: 'rounded-xl shadow-2xl'
+                }
+            });
+            setSelectedCategories([]);
+            getCategory(token);
+        } catch (err) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Failed to delete categories",
+                background: darkMode ? '#1F2937' : '#fff',
+                color: darkMode ? '#fff' : '#111827',
+                customClass: {
+                    popup: 'rounded-xl shadow-2xl'
+                }
+            });
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!name) {
+        if (!name.trim()) {
             return Swal.fire({
                 icon: "error",
-                title: "กรุณากรอกชื่อหมวดหมู่!",
+                title: "Category name required!",
+                background: darkMode ? '#1F2937' : '#fff',
+                color: darkMode ? '#fff' : '#111827',
+                customClass: {
+                    popup: 'rounded-xl shadow-2xl'
+                }
             });
         }
 
         setLoading(true);
-
-        let timerInterval;
         Swal.fire({
-            title: "กำลังตรวจสอบข้อมูล...",
-            html: `กำลังเพิ่มหมวดหมู่ <b>15</b> วินาที...`,
-            timer: 15000,
-            timerProgressBar: true,
+            title: "Adding category...",
             allowOutsideClick: false,
-            didOpen: () => {
-                const timer = Swal.getPopup().querySelector("b");
-                let count = 15;
-                timerInterval = setInterval(() => {
-                    count--;
-                    timer.textContent = count;
-                }, 1000);
-            },
-            willClose: () => {
-                clearInterval(timerInterval);
-            },
+            didOpen: () => Swal.showLoading(),
+            background: darkMode ? '#1F2937' : '#fff',
+            color: darkMode ? '#fff' : '#111827',
+            customClass: {
+                popup: 'rounded-xl shadow-2xl'
+            }
         });
 
-        setTimeout(async () => {
-            try {
-                const res = await createCategory(token, { name });
-                Swal.fire({
-                    icon: "success",
-                    title: `หมวดหมู่ "${res.data.name}" ถูกเพิ่มเรียบร้อย!`,
-                });
-                setName("");
-                getCategory(token);
-            } catch (err) {
-                Swal.fire({
-                    icon: "error",
-                    title: "เกิดข้อผิดพลาด",
-                    text: err.response?.data?.message || "ไม่สามารถเพิ่มหมวดหมู่ได้",
-                });
-            }
+        try {
+            const res = await createCategory(token, { name });
+            Swal.fire({
+                icon: "success",
+                title: "Success!",
+                html: `Category <b>"${res.data.name}"</b> added successfully`,
+                background: darkMode ? '#1F2937' : '#fff',
+                color: darkMode ? '#fff' : '#111827',
+                customClass: {
+                    popup: 'rounded-xl shadow-2xl'
+                }
+            });
+            setName("");
+            getCategory(token);
+        } catch (err) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: err.response?.data?.message || "Failed to add category",
+                background: darkMode ? '#1F2937' : '#fff',
+                color: darkMode ? '#fff' : '#111827',
+                customClass: {
+                    popup: 'rounded-xl shadow-2xl'
+                }
+            });
+        } finally {
             setLoading(false);
-        }, 15000);
+        }
+    };
+
+    const handleRemove = async (id, categoryName) => {
+        const { isConfirmed } = await Swal.fire({
+            title: "Confirm Deletion?",
+            html: `Are you sure you want to delete <b>"${categoryName}"</b>?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#EF4444",
+            cancelButtonColor: "#6B7280",
+            confirmButtonText: "Delete",
+            cancelButtonText: "Cancel",
+            background: darkMode ? '#1F2937' : '#fff',
+            color: darkMode ? '#fff' : '#111827',
+            customClass: {
+                popup: 'rounded-xl shadow-2xl',
+                confirmButton: 'px-4 py-2 rounded-lg',
+                cancelButton: 'px-4 py-2 rounded-lg'
+            }
+        });
+
+        if (!isConfirmed) return;
+
+        try {
+            await removeCategory(token, id);
+            await Swal.fire({
+                title: "Deleted!",
+                html: `Category <b>"${categoryName}"</b> has been removed`,
+                icon: "success",
+                background: darkMode ? '#1F2937' : '#fff',
+                color: darkMode ? '#fff' : '#111827',
+                customClass: {
+                    popup: 'rounded-xl shadow-2xl'
+                }
+            });
+            getCategory(token);
+        } catch (err) {
+            Swal.fire({
+                title: "Error!",
+                text: "Failed to delete category",
+                icon: "error",
+                background: darkMode ? '#1F2937' : '#fff',
+                color: darkMode ? '#fff' : '#111827',
+                customClass: {
+                    popup: 'rounded-xl shadow-2xl'
+                }
+            });
+        }
     };
 
     const toggleDarkMode = () => {
         setDarkMode(!darkMode);
+        document.documentElement.classList.toggle('dark');
     };
 
     return (
-        <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'} transition-all duration-500`}>
+        <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-900'}`}>
             {/* Dark Mode Toggle */}
             <button
                 onClick={toggleDarkMode}
-                className="fixed top-4 right-4 p-2 bg-white/10  rounded-full hover:scale-110 transition-transform duration-300"
+                className={`fixed top-6 right-6 p-3 rounded-full z-50 ${
+                    darkMode 
+                        ? 'bg-gradient-to-br from-gray-700 to-gray-800 text-yellow-300 shadow-lg hover:shadow-yellow-400/20' 
+                        : 'bg-gradient-to-br from-gray-200 to-gray-300 text-gray-700 shadow-lg hover:shadow-gray-400/20'
+                } hover:scale-110 transition-all duration-300`}
+                aria-label="Toggle dark mode"
             >
-                {darkMode ? <MoonIcon /> : <SunIcon />}
+                <FontAwesomeIcon icon={darkMode ? faSun : faMoon} size="lg" />
             </button>
 
-            <div className="container mx-auto p-8">
-                <h1
-                    data-aos="fade-down"
-                    className="text-4xl font-bold text-center mb-8"
-                >
-                    จัดการหมวดหมู่
-                </h1>
-                <form
-                    data-aos="fade-up"
-                    className="my-4 space-y-4"
-                    onSubmit={handleSubmit}
-                >
-                    <div className="form-control">
-                        <label className="label">
-                            <span className="label-text text-lg">ชื่อหมวดหมู่</span>
-                        </label>
-                        <input
-                            data-aos="fade-right"
-                            className="input input-bordered w-full bg-white/10  focus:bg-white/20 transition-all duration-300"
-                            type="text"
-                            placeholder="กรอกชื่อหมวดหมู่..."
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+            <div className="container mx-auto px-4 py-8 max-w-4xl">
+                {/* Header */}
+                <div className="text-center mb-10">
+                    <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 ${
+                        darkMode 
+                            ? 'bg-gradient-to-br from-blue-900 to-indigo-900 shadow-lg' 
+                            : 'bg-gradient-to-br from-blue-100 to-indigo-100 shadow-lg'
+                    }`}>
+                        <FontAwesomeIcon 
+                            icon={faLayerGroup} 
+                            className={`text-3xl ${darkMode ? 'text-blue-300' : 'text-blue-600'}`} 
                         />
                     </div>
+                    <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
+                        Category Management
+                    </h1>
+                    <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        Add, edit or remove product categories
+                    </p>
+                </div>
 
-                    <button
-                        data-aos="fade-up"
-                        type="submit"
-                        className={`btn btn-primary w-full mt-6 transition-transform duration-300 ${
-                            loading ? "btn-disabled" : ""
-                        }`}
-                        disabled={loading}
-                    >
-                        {loading ? (
-                            <>
-                                <span className="loading loading-spinner"></span> กำลังเพิ่ม
-                            </>
-                        ) : (
-                            <>
-                                <PlusIcon />
-                                <span className="ml-2">เพิ่มหมวดหมู่</span>
-                            </>
-                        )}
-                    </button>
-                </form>
-                <hr className="my-6 border-white/10" />
+                {/* Add Category Form */}
+                <div className={`p-6 rounded-xl shadow-lg mb-8 transition-all duration-300 ${
+                    darkMode 
+                        ? 'bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700' 
+                        : 'bg-white border border-gray-200'
+                }`}>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div>
+                            <label className={`block text-sm font-medium mb-2 ${
+                                darkMode ? 'text-gray-300' : 'text-gray-700'
+                            }`}>
+                                Category Name
+                            </label>
+                            <input
+                                type="text"
+                                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:outline-none transition-all ${
+                                    darkMode 
+                                        ? 'bg-gray-700 border-gray-600 focus:ring-blue-500 focus:border-blue-500 text-white placeholder-gray-400' 
+                                        : 'bg-white border-gray-300 focus:ring-blue-400 focus:border-blue-400 text-gray-900 placeholder-gray-500'
+                                }`}
+                                placeholder="Enter category name..."
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                            />
+                        </div>
 
-                {/* ปุ่มลบทีเดียวหลายรายการ */}
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className={`w-full py-3 px-4 rounded-lg font-semibold flex items-center justify-center space-x-2 transition-all ${
+                                loading 
+                                    ? 'bg-blue-500 cursor-not-allowed' 
+                                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
+                            } text-white shadow-md hover:shadow-lg`}
+                        >
+                            {loading ? (
+                                <>
+                                    <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
+                                    <span>Adding...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <FontAwesomeIcon icon={faPlus} />
+                                    <span>Add Category</span>
+                                </>
+                            )}
+                        </button>
+                    </form>
+                </div>
+
+                {/* Bulk Delete Button */}
                 {selectedCategories.length > 0 && (
-                    <div
-                        data-aos="fade-up"
-                        className="flex justify-end mb-4"
-                    >
+                    <div className="flex justify-end mb-4">
                         <button
                             onClick={handleBulkDelete}
-                            className="btn btn-error"
                             disabled={loading}
+                            className={`py-2 px-4 rounded-lg font-medium flex items-center space-x-2 transition-all ${
+                                loading 
+                                    ? 'bg-red-500 cursor-not-allowed' 
+                                    : 'bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700'
+                            } text-white shadow-md hover:shadow-lg`}
                         >
-                            <TrashIcon />
-                            <span className="ml-2">ลบที่เลือก ({selectedCategories.length})</span>
+                            <FontAwesomeIcon icon={faTrash} />
+                            <span>Delete Selected ({selectedCategories.length})</span>
                         </button>
                     </div>
                 )}
 
-                {/* ตารางหมวดหมู่ */}
-                <ul className="list-none space-y-2 mt-4 bg-white/10  p-6 rounded-lg">
-                    {categories.map((item, index) => (
-                        <li
-                            key={index}
-                            data-aos="fade-up"
-                            data-aos-delay={index * 100} // เพิ่ม delay สำหรับแต่ละรายการ
-                            className="flex justify-between items-center p-4 bg-white/5  rounded-lg hover:bg-white/10 transition-all duration-300 hover:scale-105"
-                        >
-                            <div className="flex items-center space-x-4">
-                                <input
-                                    type="checkbox"
-                                    className="checkbox checkbox-primary"
-                                    checked={selectedCategories.includes(item.id)}
-                                    onChange={() => handleSelectCategory(item.id)}
-                                />
-                                <span className="text-lg">{item.name}</span>
-                            </div>
-                            <button
-                                className="btn btn-error btn-sm hover:bg-red-600 transition-all duration-300"
-                                onClick={() => handleRemove(item.id)}
-                            >
-                                <TrashIcon />
-                                <span className="ml-2">ลบ</span>
-                            </button>
-                        </li>
-                    ))}
-                </ul>
+                {/* Categories List */}
+                <div className={`rounded-xl shadow-lg overflow-hidden transition-all duration-300 ${
+                    darkMode 
+                        ? 'bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700' 
+                        : 'bg-white border border-gray-200'
+                }`}>
+                    {categories.length === 0 ? (
+                        <div className={`p-8 text-center ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            <FontAwesomeIcon icon={faLayerGroup} className="text-3xl mb-3 opacity-50" />
+                            <p className="text-lg">No categories yet</p>
+                            <p className="text-sm mt-1">Add your first category using the form above</p>
+                        </div>
+                    ) : (
+                        <ul className="divide-y divide-gray-700">
+                            {categories.map((item) => (
+                                <li 
+                                    key={item.id} 
+                                    className={`p-4 hover:bg-opacity-50 transition-colors ${
+                                        darkMode 
+                                            ? 'hover:bg-gray-700' 
+                                            : 'hover:bg-gray-100'
+                                    } ${
+                                        selectedCategories.includes(item.id) 
+                                            ? darkMode 
+                                                ? 'bg-blue-900/30' 
+                                                : 'bg-blue-100' 
+                                            : ''
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-4">
+                                            <label className="inline-flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    className={`h-5 w-5 rounded transition-all ${
+                                                        darkMode 
+                                                            ? 'text-blue-500 bg-gray-700 border-gray-600 focus:ring-blue-500' 
+                                                            : 'text-blue-600 bg-white border-gray-300 focus:ring-blue-400'
+                                                    }`}
+                                                    checked={selectedCategories.includes(item.id)}
+                                                    onChange={() => handleSelectCategory(item.id)}
+                                                />
+                                            </label>
+                                            <span className="text-lg font-medium">{item.name}</span>
+                                        </div>
+                                        <div className="flex space-x-2">
+                                            <button
+                                                onClick={() => handleRemove(item.id, item.name)}
+                                                className={`py-2 px-3 rounded-md font-medium flex items-center space-x-2 transition-all ${
+                                                    darkMode 
+                                                        ? 'bg-gradient-to-br from-red-900/80 to-pink-900/80 hover:from-red-800/80 hover:to-pink-800/80 text-red-100' 
+                                                        : 'bg-gradient-to-br from-red-100 to-pink-100 hover:from-red-200 hover:to-pink-200 text-red-800'
+                                                } shadow-sm`}
+                                            >
+                                                <FontAwesomeIcon icon={faTrash} size="sm" />
+                                                <span>Delete</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
             </div>
         </div>
     );
