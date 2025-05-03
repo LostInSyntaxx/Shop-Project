@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import useShopStore from "../../store/shop-store.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch, faUndo } from "@fortawesome/free-solid-svg-icons";
-import Swal from "sweetalert2"; // ✅ Import SweetAlert2
+import { faSearch, faUndo, faBell, faFilter } from "@fortawesome/free-solid-svg-icons";
+import Swal from "sweetalert2";
 
 const Search = () => {
     const getProduct = useShopStore((state) => state.getProduct);
@@ -12,9 +12,9 @@ const Search = () => {
 
     const [text, setText] = useState("");
     const [categorySelected, setCategorySelected] = useState([]);
-    const [price, setPrice] = useState([100, 30000]);
+    const [price, setPrice] = useState([1000, 30000]);
     const [ok, setOk] = useState(false);
-    const [isAlertEnabled, setIsAlertEnabled] = useState(true); // ✅ Switch เปิด/ปิด Alert
+    const [isAlertEnabled, setIsAlertEnabled] = useState(true);
 
     useEffect(() => {
         getCategory();
@@ -25,15 +25,7 @@ const Search = () => {
             if (text) {
                 actionSearchFilters({ query: text });
                 if (isAlertEnabled) {
-                    Swal.fire({
-                        icon: "info",
-                        title: "ค้นหาสินค้า",
-                        text: `กำลังค้นหา: "${text}"`,
-                        timer: 1500,
-                        showConfirmButton: false,
-                        background: "#1e1e1e",
-                        color: "#fff",
-                    });
+                    showAlert("info", `กำลังค้นหา: "${text}"`);
                 }
             } else {
                 getProduct();
@@ -62,32 +54,30 @@ const Search = () => {
         }
 
         if (isAlertEnabled) {
-            Swal.fire({
-                icon: "success",
-                title: "อัปเดตหมวดหมู่",
-                text: inState.length > 0 ? `เลือกหมวดหมู่ใหม่แล้ว` : "โหลดสินค้าทั้งหมด",
-                timer: 1500,
-                showConfirmButton: false,
-                background: "#1e1e1e",
-                color: "#fff",
-            });
+            showAlert("success", inState.length > 0 ? `เลือกหมวดหมู่ใหม่แล้ว` : "โหลดสินค้าทั้งหมด");
         }
     };
 
     useEffect(() => {
         actionSearchFilters({ price });
         if (isAlertEnabled) {
-            Swal.fire({
-                icon: "info",
-                title: "ปรับช่วงราคา",
-                text: `ช่วงราคา: ฿${price[0]} - ฿${price[1]}`,
-                timer: 1500,
-                showConfirmButton: false,
-                background: "#1e1e1e",
-                color: "#fff",
-            });
+            showAlert("info", `ช่วงราคา: ฿${price[0].toLocaleString()} - ฿${price[1].toLocaleString()}`);
         }
     }, [ok]);
+
+    const showAlert = (icon, text) => {
+        Swal.fire({
+            icon,
+            text,
+            timer: 1500,
+            showConfirmButton: false,
+            background: "#1a1a1a",
+            color: "#fff",
+            iconColor: icon === "info" ? "#3b82f6" : 
+                      icon === "success" ? "#10b981" : "#f59e0b",
+            backdrop: "rgba(0,0,0,0.5)"
+        });
+    };
 
     const handleMinPrice = (e) => {
         const newMin = Number(e.target.value);
@@ -112,88 +102,114 @@ const Search = () => {
         getProduct();
 
         if (isAlertEnabled) {
-            Swal.fire({
-                icon: "warning",
-                title: "รีเซ็ตการค้นหา",
-                text: "รีเซ็ตตัวกรองเรียบร้อย",
-                timer: 1500,
-                showConfirmButton: false,
-                background: "#1e1e1e",
-                color: "#fff",
-            });
+            showAlert("warning", "รีเซ็ตตัวกรองเรียบร้อย");
         }
     };
 
     return (
-        <div className="p-5 rounded-lg">
-            {/* ✅ Switch เปิด/ปิด Alert */}
-            <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl text-white/80 font-semibold flex items-center gap-2">
-                    <FontAwesomeIcon icon={faSearch} /> ค้นหาสินค้า
-                </h2>
-                <label className="flex items-center space-x-2 text-white text-xs">
-                    <span>🔔 แจ้งเตือน</span>
-                    <input
-                        type="checkbox"
-                        checked={isAlertEnabled}
-                        onChange={() => setIsAlertEnabled(!isAlertEnabled)}
-                        className="toggle toggle-sm toggle-primary"
+        <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 p-6 rounded-2xl border border-gray-700/50 shadow-lg">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400">
+                        <FontAwesomeIcon icon={faFilter} size="lg" />
+                    </div>
+                    <h2 className="text-xl font-bold text-white">ตัวกรองการค้นหา</h2>
+                </div>
+                
+                {/* Notification Toggle */}
+                <label className="flex items-center gap-2 cursor-pointer">
+                    <div className={`w-10 h-5 rounded-full flex items-center transition-all duration-200 ${isAlertEnabled ? 'bg-emerald-500/90' : 'bg-gray-600'}`}>
+                        <div className={`w-4 h-4 rounded-full bg-white shadow-md transform transition-transform duration-200 ${isAlertEnabled ? 'translate-x-6' : 'translate-x-1'}`}></div>
+                    </div>
+                    <FontAwesomeIcon 
+                        icon={faBell} 
+                        className={`text-sm ${isAlertEnabled ? 'text-emerald-400' : 'text-gray-400'}`}
                     />
                 </label>
             </div>
 
-            <div className="relative mb-4">
+            {/* Search Input */}
+            <div className="relative mb-6">
                 <input
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     type="text"
                     placeholder="ค้นหาสินค้า..."
-                    className="input input-bordered w-full bg-white/10 text-white focus:bg-white/20 transition-colors pl-10"
+                    className="input input-bordered w-full bg-gray-800/50 text-white placeholder-gray-400 border-gray-700 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 pl-10"
                 />
-                <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-3 text-gray-400" />
+                <FontAwesomeIcon 
+                    icon={faSearch} 
+                    className="absolute left-3 top-3 text-gray-400" 
+                />
             </div>
 
-            <hr className="border-gray-700 mb-4" />
-
-            <div>
-                <h1 className="text-lg text-white/80 font-semibold mb-2">หมวดหมู่สินค้า</h1>
-                <div className="flex flex-col gap-2">
+            {/* Categories Section */}
+            <div className="mb-6">
+                <h3 className="text-lg font-semibold text-white mb-3">หมวดหมู่สินค้า</h3>
+                <div className="grid grid-cols-2 gap-3">
                     {categories.map((item) => (
-                        <label key={item.id} className="flex items-center gap-2 text-white/80">
+                        <label 
+                            key={item.id} 
+                            className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${categorySelected.includes(String(item.id)) ? 
+                                'bg-purple-500/20 border border-purple-500/50' : 
+                                'bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700'}`}
+                        >
                             <input
                                 type="checkbox"
                                 value={item.id}
                                 checked={categorySelected.includes(String(item.id))}
                                 onChange={handleCheck}
-                                className="checkbox checkbox-primary"
+                                className="checkbox checkbox-primary checkbox-sm"
                             />
-                            {item.name}
+                            <span className="text-white">{item.name}</span>
                         </label>
                     ))}
                 </div>
             </div>
 
-            <hr className="border-gray-700 my-4" />
-
-            <div>
-                <h1 className="text-lg text-white/80 font-semibold mb-2">ค้นหาราคา</h1>
-                <div className="flex justify-between text-md font-bold text-primary mb-2">
-                    <span>Min: {price[0]}</span>
-                    <span>Max: {price[1]}</span>
+            {/* Price Range Section */}
+            <div className="mb-6">
+                <h3 className="text-lg font-semibold text-white mb-3">ช่วงราคา</h3>
+                <div className="flex justify-between text-md font-bold text-purple-400 mb-4">
+                    <span>฿{price[0].toLocaleString()}</span>
+                    <span>฿{price[1].toLocaleString()}</span>
                 </div>
-                <div className="flex gap-4">
-                    <input type="range" min="100" max="30000" value={price[0]} onChange={handleMinPrice} className="range range-primary" />
-                    <input type="range" min="100" max="30000" value={price[1]} onChange={handleMaxPrice} className="range range-primary" />
+                
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <span className="text-gray-400 text-sm w-12">Min:</span>
+                        <input 
+                            type="range" 
+                            min="100" 
+                            max="30000" 
+                            value={price[0]} 
+                            onChange={handleMinPrice} 
+                            className="range range-primary range-sm flex-1" 
+                        />
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <span className="text-gray-400 text-sm w-12">Max:</span>
+                        <input 
+                            type="range" 
+                            min="100" 
+                            max="30000" 
+                            value={price[1]} 
+                            onChange={handleMaxPrice} 
+                            className="range range-primary range-sm flex-1" 
+                        />
+                    </div>
                 </div>
             </div>
 
-            <hr className="border-gray-700 my-4" />
-
-            <div className="flex justify-center">
-                <button onClick={handleReset} className="btn btn-outline btn-warning">
-                    <FontAwesomeIcon icon={faUndo} className="mr-2" /> รีเซ็ตการค้นหา
-                </button>
-            </div>
+            {/* Reset Button */}
+            <button 
+                onClick={handleReset} 
+                className="btn btn-outline w-full border-gray-600 hover:border-gray-500 text-gray-300 hover:text-white hover:bg-gray-700/50"
+            >
+                <FontAwesomeIcon icon={faUndo} className="mr-2" />
+                รีเซ็ตการค้นหา
+            </button>
         </div>
     );
 };
