@@ -14,14 +14,16 @@ const Shop = () => {
 
     return (
         <div className="flex h-screen">
-            <div className="w-1/4 p-4 bg-black/30 rounded-2xl">
+            <div className="w-1/4 p-4 rounded-2xl">
                 <h2 className="text-white/80 text-xl font-semibold mb-4"></h2>
                 <Search/>
             </div>
 
             {/* Product Section */}
             <div className="w-1/2 p-4 h-screen overflow-y-auto">
-                <p className="text-lg sm:text-xl lg:text-2xl text-white/80 font-semibold mb-2">สินค้าทั้งหมด</p>
+                 <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+                            สินค้าทั้งหมด
+                        </h1>
                 <hr className="border-gray-700 mb-4" />
                 <div className="flex flex-wrap gap-4">
                     {products.map((item, index) => (
