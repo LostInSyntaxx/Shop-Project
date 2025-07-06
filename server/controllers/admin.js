@@ -32,14 +32,22 @@ exports.getOrderAdmin = async (req, res) => {
                     select: {
                         id: true,
                         email: true,
-                        address: true,
+                        address: true
                     }
                 }
+            },
+            orderBy: {
+                createdAt: 'desc' 
             }
-        })
-        res.json(orders)
+        });
+
+
+        res.json(validOrders);
     } catch (err) {
-        console.log(err)
-        res.status(500).json({ message: "Server error" })
+        console.log(err);
+        res.status(500).json({ 
+            message: "Server error",
+            error: err.message 
+        });
     }
 }
