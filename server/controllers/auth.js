@@ -2,56 +2,129 @@ const prisma = require('../config/prisma');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
-const { debug, success, error } = require('../utils/logger');
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+
 
 exports.register = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, username, password } = req.body;
 
-    if (!email || !password || password.length < 1) {
-      return res.status(400).json({ message: "Invalid email or password" });
+    if (!email || !username || !password || password.length < 6) {
+      return res.status(400).json({
+        message: "Please provide all required fields and password must be at least 6 characters"
+      });
     }
 
-    const existingUser = await prisma.user.findFirst({ where: { email } });
-    if (existingUser) return res.status(400).json({ message: "Email already exists" });
+    // Check for existing email or username
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email },
+          { username }
+        ]
+      }
+    });
+
+    if (existingUser) {
+      if (existingUser.email === email) {
+        return res.status(400).json({ message: "Email is already in use" });
+      }
+      if (existingUser.username === username) {
+        return res.status(400).json({ message: "Username is already in use" });
+      }
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await prisma.user.create({
-      data: { email, password: hashedPassword }
+      data: {
+        email,
+        username,
+        password: hashedPassword,
+        role: "user",
+        enabled: true
+      }
     });
 
-    res.send('Register Successfully');
+    res.json({
+      message: 'Registration successful',
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        username: newUser.username
+      }
+    });
   } catch (err) {
-    error('Register failed', err);
-    res.status(500).json({ message: 'Internal Server Error' });
+    console.error('Register error:', err);
+    res.status(500).json({ message: 'Internal server error. Please try again.' });
   }
 };
 
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { emailOrUsername, password } = req.body;
 
-    const user = await prisma.user.findFirst({ where: { email } });
+    if (!emailOrUsername || !password) {
+      return res.status(400).json({
+        message: "Please enter email/username and password"
+      });
+    }
 
-    if (!user || !user.enabled) return res.status(400).json({ message: "User not found or not enabled" });
+    // Find user by email or username
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: emailOrUsername },
+          { username: emailOrUsername }
+        ],
+      }
+    });
+
+    if (!user || !user.enabled) {
+      return res.status(400).json({
+        message: "Account not found or has been disabled"
+      });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid password" });
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Invalid password"
+      });
+    }
+
+
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() }
+    });
 
     const payload = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      avatar: user.avatar
+      id: updatedUser.id,
+      email: updatedUser.email,
+      username: updatedUser.username,
+      name: updatedUser.name,
+      role: updatedUser.role,
+      discordId: updatedUser.discordId,
+      googleId: updatedUser.googleId,
+      avatar: updatedUser.avatar,
+      createdAt: updatedUser.createdAt,
+      updatedAt: updatedUser.updatedAt,
+      lastLoginAt: updatedUser.lastLoginAt,
+      address: updatedUser.address
     };
 
     const token = jwt.sign(payload, process.env.SECRET, { expiresIn: '1d' });
 
-    res.json({ payload, token });
+    res.json({
+      message: "Login successful",
+      payload,
+      token
+    });
   } catch (err) {
-    error('Login failed', err);
-    res.status(500).json({ message: 'Internal Server Error' });
+    console.error('Login error:', err);
+    res.status(500).json({ message: 'Internal server error. Please try again.' });
   }
 };
 
@@ -67,15 +140,19 @@ exports.currentUser = async (req, res) => {
         discordId: true,
         avatar: true,
         googleId: true,
+        createdAt: true,
+        updatedAt: true,
+        lastLoginAt: true,
       }
     });
 
     res.json({ user });
   } catch (err) {
-    error('Failed to get current user', err);
+    console.error('Failed to get current user:', err);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
 
 exports.discordAuth = (req, res) => {
   const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(process.env.DISCORD_REDIRECT_URI)}&response_type=code&scope=identify%20email`;
@@ -122,10 +199,14 @@ exports.discordCallback = async (req, res) => {
           email: discordUser.email,
           name: discordUser.username,
           discordId: discordUser.id,
-          avatar: discordUser.avatar 
+          avatar: discordUser.avatar
             ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
             : null,
           verified: true,
+          username: discordUser.username,
+          updatedAt: new Date(),
+          lastLoginAt: new Date(),
+          createdAt: new Date()
         }
       });
     } else if (!user.discordId) {
@@ -133,7 +214,7 @@ exports.discordCallback = async (req, res) => {
         where: { id: user.id },
         data: {
           discordId: discordUser.id,
-          avatar: discordUser.avatar 
+          avatar: discordUser.avatar
             ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
             : null
         }
@@ -232,3 +313,193 @@ exports.googleCallback = async (req, res) => {
     res.status(500).json({ message: "Google login failed" });
   }
 };
+
+
+// ตั้งค่า Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// ตั้งค่า multer
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
+
+// Middleware สำหรับอัพโหลดไฟล์
+exports.uploadProfilePicture = async (req, res) => {
+  try {
+    // ใช้ upload.single middleware
+    upload.single('file')(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({
+          message: err.message || 'Error uploading file'
+        });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({
+          message: 'No file uploaded'
+        });
+      }
+
+      try {
+        // อัพโหลดไป Cloudinary
+        const result = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            {
+              folder: 'avatars',
+              transformation: [
+                { width: 400, height: 400, crop: 'fill' }
+              ]
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+
+          // ส่งไฟล์ไป Cloudinary
+          uploadStream.end(req.file.buffer);
+        });
+
+        // อัพเดทข้อมูลใน Database
+        const user = await prisma.user.update({
+          where: { id: req.user.id },
+          data: { avatar: result.secure_url },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true,
+            avatar: true
+          }
+        });
+
+        res.json({
+          message: 'Profile picture uploaded successfully',
+          user: user,
+          avatarUrl: result.secure_url
+        });
+
+      } catch (error) {
+        console.error('Upload error:', error);
+        res.status(500).json({
+          message: 'Failed to upload to Cloudinary'
+        });
+      }
+    });
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({
+      message: 'Internal server error'
+    });
+  }
+};
+
+// อัพเดทรูปโปรไฟล์
+exports.updateProfilePicture = async (req, res) => {
+  try {
+    upload.single('file')(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({
+          message: err.message || 'Error uploading file'
+        });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({
+          message: 'No file uploaded'
+        });
+      }
+
+      try {
+        // อัพโหลดไป Cloudinary
+        const result = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            {
+              folder: 'avatars',
+              transformation: [
+                { width: 400, height: 400, crop: 'fill' }
+              ]
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+
+          uploadStream.end(req.file.buffer);
+        });
+
+        // อัพเดท user ใน database
+        const user = await prisma.user.update({
+          where: { id: req.user.id },
+          data: { avatar: result.secure_url },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true,
+            avatar: true
+          }
+        });
+
+        res.json({
+          message: 'Profile picture updated successfully',
+          user: user,
+          avatarUrl: result.secure_url
+        });
+
+      } catch (error) {
+        console.error('Update error:', error);
+        res.status(500).json({
+          message: 'Failed to update profile picture'
+        });
+      }
+    });
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({
+      message: 'Internal server error'
+    });
+  }
+};
+
+exports.deleteProfilePicture = async (req, res) => {
+  try {
+    const user = await prisma.user.update({
+      where: { id: req.user.id },
+      data: { avatar: null },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        avatar: true
+      }
+    });
+
+    res.json({
+      message: 'Profile picture deleted successfully',
+      user: user
+    });
+  } catch (error) {
+    console.error('Delete error:', error);
+    res.status(500).json({
+      message: 'Failed to delete profile picture'
+    });
+  }
+};
+
+
