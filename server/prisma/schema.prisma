@@ -9,29 +9,29 @@ generator client {
 }
 
 datasource db {
-  provider  = "mysql"
-  url       = env("DATABASE_URL")
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String?
-  name      String?
-  picture   String?
-  role      String   @default("user")
-  enabled   Boolean  @default(true)
-  address   String?
-  orders    Order[]
-  carts     Cart[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-   // Discord fields
-  discordId String?  @unique // Discord User ID
-  googleId   String? @unique
-  avatar    String?  // Discord avatar URL 
-  verified  Boolean  @default(false)
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
+  username    String    @unique
+  password    String?
+  name        String?
+  picture     String?
+  role        String    @default("user")
+  enabled     Boolean   @default(true)
+  address     String?
+  orders      Order[]
+  carts       Cart[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastLoginAt DateTime?
+  discordId String? @unique // Discord User ID
+  googleId  String? @unique
+  avatar    String? // Discord avatar URL 
+  verified  Boolean @default(false)
 }
 
 enum Role {
