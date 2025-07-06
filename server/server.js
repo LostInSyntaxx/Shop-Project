@@ -1,29 +1,24 @@
 const express = require('express');
-const morgan = require('morgan');
-const cors = require('cors');
-const { readdirSync } = require('fs');
-const path = require('path');
-const { success, debug } = require('./utils/logger');
-
-
 const app = express();
+const morgan = require('morgan');
+const { readdirSync } = require('fs');
+const cors = require('cors');
+
+
 
 app.use(morgan('dev'));
 app.use(express.json({ limit: '20mb' }));
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true
-}));
+app.use(cors());
 
 
-readdirSync(path.join(__dirname, 'routes')).map((file) => {
-    const route = require('./routes/' + file);
-    app.use('/api', route);
-    success(`Route loaded: /api/${file}`);
-});
+
+readdirSync('./routes').map((r) => app.use('/api', require('./routes/' + r)));
+
+
+
+
 
 
 app.listen(3000, () => {
-    success('🚀 Server is running on http://localhost:3000');
+    console.log('Server is running on port 3000');
 });
-
