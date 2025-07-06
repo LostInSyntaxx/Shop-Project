@@ -7,8 +7,13 @@ const {
   discordAuth,
   discordCallback,
   googleAuth,
-  googleCallback
+  googleCallback,
+  uploadProfilePicture,
+  updateProfilePicture,
+  deleteProfilePicture
 } = require('../controllers/auth');
+
+
 const { authCheck, adminCheck } = require('../middlewares/authCheck');
 
 router.post('/register', register);
@@ -23,5 +28,11 @@ router.get('/discord/callback', discordCallback);
 router.get('/google', googleAuth);
 router.get('/google/callback', googleCallback);
 
+router.post('/upload-avatar', authCheck, uploadProfilePicture);
+router.put('/update-avatar', authCheck, updateProfilePicture);
+router.delete('/delete-avatar', authCheck, deleteProfilePicture);
+
 
 module.exports = router;
+
+
